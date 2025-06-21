@@ -1,8 +1,9 @@
 using Finrex_App.DTOS;
 
-namespace Finrex_App.Services;
+namespace Finrex_App.Services.Interface;
 
-public class IAuthServices
+public interface IAuthServices
 {
-    Task<LoginResponseDto> Lo( LoginDto loginDto );>
+    Task<LoginResponseDto> LoginAsync( LoginResponseDto loginDto );
+    Task<bool> RegisterAsync( LoginResponseDto loginDto );
 }

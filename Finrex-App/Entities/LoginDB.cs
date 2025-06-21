@@ -1,8 +1,16 @@
-namespace Finrex_App.Domain;
+using System.ComponentModel.DataAnnotations;
 
-public class Contato
+namespace Finrex_App.Entities;
+
+public class LoginDb
 {
     public int Id { get; set; }
-    public string email { get; set; }
-    public string senha { get; set; }
+
+    [Required]
+    [EmailAddress]
+    public required string Email { get; set; }
+
+    [Required]
+    [MinLength( 8 )]
+    public required string Senha { get; set; }
 }
