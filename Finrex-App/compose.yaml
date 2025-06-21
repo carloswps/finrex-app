@@ -1,4 +1,6 @@
-﻿services:
+﻿version: '3.8'
+
+services:
   db:
     image: postgres:14-alpine
     restart: always
@@ -9,7 +11,9 @@
     ports:
       - '5432:5432'
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data 
+    networks:
+      - finrex_network  
 
   pgadmin:
     image: dpage/pgadmin4
@@ -21,4 +25,12 @@
       - '15432:80'
     depends_on:
       - db
+    networks:
+      - finrex_network 
 
+volumes:
+  pgdata:  
+
+networks:
+  finrex_network:
+    driver: bridge 

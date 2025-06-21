@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Finrex_App.Entities;
+namespace Finrex_App.Core.DTOs;
 
-public class LoginDb
+public class LoginDto
 {
     public int Id { get; set; }
 
