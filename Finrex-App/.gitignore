@@ -1,0 +1,36 @@
+# Pastas geradas na compilação
+bin/
+obj/
+
+# Configurações de usuário (não devem ser compartilhadas)
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Configurações locais do Rider, VS Code e VS
+.vscode/
+.idea/
+*.csproj.user
+
+# Arquivos de log e cache
+*.log
+
+# Dependências geradas com dotnet restore
+project.lock.json
+project.fragment.lock.json
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+
+# Docker
+**/docker-compose.override.yml
+
+# Testes (se estiver usando cobertura com cobertura ou similar)
+TestResults/
+coverage/
+
+# Publish local
+publish/

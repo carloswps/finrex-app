@@ -1,0 +1,7 @@
+﻿services:
+  finrex-app:
+    image: finrex-app
+    build:
+      context: .
+      dockerfile: Finrex-App/Dockerfile
+
