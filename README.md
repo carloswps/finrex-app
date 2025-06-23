@@ -15,7 +15,13 @@ O sistema está sendo desenvolvido para ajudar os usuários a controlarem suas f
 ## 📌 Status do Projeto
 
 🚧 Em desenvolvimento inicial.  
-Instruções para instalação, execução e melhorias serão adicionadas em breve.
+Instruções para instalação e execução serão adicionadas em breve.
+
+---
+
+## 🔗 Repositório
+
+[Link do repositório Back-end](https://github.com/carloswps/finrex-app/tree/main)
 
 ---
 
