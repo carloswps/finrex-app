@@ -16,7 +16,21 @@ public class AuthController : ControllerBase
         _authService = authService;
         _logger = logger;
     }
-    
+
+    [HttpGet( "users" )]
+    public async Task<IActionResult> GetUsers()
+    {
+        try
+        {
+            var users = await _authService.GetUserAsync();
+            return Ok( users );
+        } catch ( Exception e )
+        {
+            _logger.LogError( e, "Erro ao buscar usuários" );
+            return StatusCode( 500, "Error interno na aplicação" );
+        }
+    }
+
     [HttpPost( "register" )]
     public async Task<IActionResult> Register( RegisterDTO registerDto )
     {
@@ -26,10 +40,10 @@ public class AuthController : ControllerBase
             {
                 return BadRequest( ModelState );
             }
-            
+
             var result = await _authService.RegisterAsync( registerDto );
 
-            if ( !!result )
+            if ( !result )
             {
                 return BadRequest( "Não foi possivel realizar o cadastro" );
             }
@@ -42,5 +56,4 @@ public class AuthController : ControllerBase
             throw;
         }
     }
-    
 }

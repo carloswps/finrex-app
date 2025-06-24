@@ -11,33 +11,17 @@ public class AuthService : IAuthServices
     private readonly AppDbContext _context;
     private readonly ILogger<AuthService> _logger;
 
-    public AuthService(AppDbContext context, ILogger<AuthService> logger)
+    public AuthService( AppDbContext context, ILogger<AuthService> logger )
     {
         _context = context;
         _logger = logger;
     }
 
-    public async Task<User> LoginAsync(LoginDto loginDto)
+    public async Task<bool> RegisterAsync( RegisterDTO registerDto )
     {
         try
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
-
-            return user;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Erro ao realizar login");
-            throw;
-        }
-    }
-
-    public async Task<bool> RegisterAsync(RegisterDTO registerDto)
-    {
-        try
-        {
-            if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
+            if ( await _context.Users.AnyAsync( u => u.Email == registerDto.Email ) )
             {
                 return false;
             }
@@ -51,18 +35,29 @@ public class AuthService : IAuthServices
                 AtualizadoEm = DateTime.UtcNow
             };
 
-            _context.Users.Add(user);
+            _context.Users.Add( user );
             await _context.SaveChangesAsync();
             return true;
-        }
-        catch (Exception ex)
+        } catch ( Exception ex )
         {
-            _logger.LogError(ex, "Erro ao registrar usuário");
+            _logger.LogError( ex, "Erro ao registrar usuário" );
             throw;
         }
     }
 
-    private string GenerateToken(User user)
+    public async Task<List<User>> GetUserAsync()
+    {
+        try
+        {
+            return await _context.Users.ToListAsync();
+        } catch ( Exception e )
+        {
+            _logger.LogError( e, "Error ao buscar usuarios" );
+            throw;
+        }
+    }
+
+    private string GenerateToken( User user )
     {
         // Implementar geração de JWT token
         return $"jwt_token_{user.Id}_{DateTime.UtcNow.Ticks}";
