@@ -5,7 +5,8 @@ using Finrex_App.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route( "api/[controller]" )]
+[ApiVersion( "1.0" )]
+[Route( "api/v{version:apiVersion}/[controller]" )]
 public class AuthController : ControllerBase
 {
     private readonly IAuthServices _authService;
@@ -16,7 +17,7 @@ public class AuthController : ControllerBase
         _authService = authService;
         _logger = logger;
     }
-    
+
     [HttpPost( "register" )]
     public async Task<IActionResult> Register( RegisterDTO registerDto )
     {
@@ -26,10 +27,10 @@ public class AuthController : ControllerBase
             {
                 return BadRequest( ModelState );
             }
-            
+
             var result = await _authService.RegisterAsync( registerDto );
 
-            if ( !!result )
+            if ( !result )
             {
                 return BadRequest( "Não foi possivel realizar o cadastro" );
             }
@@ -42,5 +43,12 @@ public class AuthController : ControllerBase
             throw;
         }
     }
-    
+
+    [HttpGet( "usuarios-temporarios" )]
+    public OkObjectResult GetAll()
+    {
+        var users = _authService.GetUsers();
+        return Ok( users );
+    }
+
 }

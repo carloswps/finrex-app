@@ -62,6 +62,12 @@ public class AuthService : IAuthServices
         }
     }
 
+    public List<User> GetUsers()
+    {
+        var users = _context.Users.ToList();
+        return users;
+    }
+
     private string GenerateToken(User user)
     {
         // Implementar geração de JWT token
