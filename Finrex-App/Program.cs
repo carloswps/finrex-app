@@ -1,4 +1,7 @@
+using System.Reflection;
 using Finrex_App.Core.Entities;
+using Finrex_App.Core.Example;
+using Finrex_App.Core.Middleware;
 using Finrex_App.Infra.Data;
 using Finrex_App.Services;
 using Finrex_App.Services.Interface;
@@ -8,7 +11,7 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,9 +19,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// DI
+builder.Services.AddScoped<IAuthServices, AuthService>();
+builder.Services.AddScoped<IAuthServices, AuthService>();
+
+// Cache config
+builder.Services.AddMemoryCache();
+builder.Services.AddResponseCaching();
+
 // Config Swagger version
 builder.Services.AddSwaggerGen(options =>
 {
+// Documentation XML
+var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+options.IncludeXmlComments(xmlPath);
+
     var provider = builder.Services.BuildServiceProvider()
         .GetRequiredService<IApiVersionDescriptionProvider>();
 
@@ -33,7 +49,10 @@ builder.Services.AddSwaggerGen(options =>
     }
 
     options.OperationFilter<SwaggerDefaultValues>();
+    
+    options.ExampleFilters();
 });
+builder.Services.AddSwaggerExamplesFromAssemblyOf<RegisterDtoExample>();
 
 // Setting the API versioning
 builder.Services.AddApiVersioning(options =>
@@ -98,6 +117,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseResponseCaching();
 app.UseAuthorization();
 app.MapControllers();
 

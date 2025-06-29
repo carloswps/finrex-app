@@ -43,7 +43,8 @@ public class AuthController : ControllerBase
             throw;
         }
     }
-
+    
+    [ResponseCache(Duration = 120)]
     [HttpGet( "usuarios-temporarios" )]
     public OkObjectResult GetAll()
     {
