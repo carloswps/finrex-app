@@ -7,4 +7,5 @@ public interface IAuthServices
 {
     Task<bool> RegisterAsync( RegisterDTO registerDto );
     List<User> GetUsers();
+    Task<string> LoginAsync( LoginUserDto loginUserDto );
 }

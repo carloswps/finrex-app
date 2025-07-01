@@ -2,6 +2,7 @@ using Finrex_App.Core.DTOs;
 using Finrex_App.Core.Entities;
 using Finrex_App.Services;
 using Finrex_App.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -43,13 +44,25 @@ public class AuthController : ControllerBase
             throw;
         }
     }
-    
-    [ResponseCache(Duration = 120)]
+
+    [HttpPost( "login" )]
+    public async Task<IActionResult> Login( LoginUserDto loginUserDto )
+    {
+        var token = await _authService.LoginAsync( loginUserDto );
+        if ( token == null )
+        {
+            return Unauthorized( "Credenciais invalidas" );
+        }
+
+        return Ok( new { token } );
+    }
+
+    [Authorize]
+    [ResponseCache( Duration = 120 )]
     [HttpGet( "usuarios-temporarios" )]
     public OkObjectResult GetAll()
     {
         var users = _authService.GetUsers();
         return Ok( users );
     }
-
 }

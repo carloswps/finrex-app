@@ -1,8 +1,15 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Finrex_App.Core.DTOs;
 using Finrex_App.Core.Entities;
+using Finrex_App.Core.JwtGenerate;
 using Finrex_App.Infra.Data;
 using Finrex_App.Services.Interface;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Finrex_App.Services;
 
@@ -10,11 +17,13 @@ public class AuthService : IAuthServices
 {
     private readonly AppDbContext _context;
     private readonly ILogger<AuthService> _logger;
+    private readonly IConfiguration _configuration;
 
-    public AuthService( AppDbContext context, ILogger<AuthService> logger )
+    public AuthService( AppDbContext context, ILogger<AuthService> logger, IConfiguration configuration )
     {
         _context = context;
         _logger = logger;
+        _configuration = configuration;
     }
 
     public async Task<bool> RegisterAsync( RegisterDTO registerDto )
@@ -51,9 +60,37 @@ public class AuthService : IAuthServices
         return users;
     }
 
-    private string GenerateToken( User user )
+
+    public async Task<string> LoginAsync( LoginUserDto loginUserDto )
     {
-        // Implementar geração de JWT token
-        return $"jwt_token_{user.Id}_{DateTime.UtcNow.Ticks}";
+        var user = await _context.Users
+            .FirstOrDefaultAsync( u => u.Email == loginUserDto.Email && u.Senha == loginUserDto.Senha );
+
+        if ( user == null )
+        {
+            return null;
+        }
+
+        return GenerateToken( user );
+    }
+
+    public string GenerateToken( User user )
+    {
+        var key = Encoding.UTF8.GetBytes( _configuration[ "Jwt:Key" ] ??
+                                          throw new InvalidOperationException( "Nenhuma chave encontrada" ) );
+        var tokenConfig = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity( new Claim[]
+            {
+                new( "user", user.Email )
+            } ),
+            Expires = DateTime.UtcNow.AddDays( 7 ),
+            SigningCredentials = new SigningCredentials( new SymmetricSecurityKey( key ),
+                SecurityAlgorithms.HmacSha256Signature )
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken( tokenConfig );
+        var TokenString = tokenHandler.WriteToken( token );
+        return TokenString;
     }
 }
