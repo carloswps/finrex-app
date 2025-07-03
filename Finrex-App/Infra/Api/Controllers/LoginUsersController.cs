@@ -1,5 +1,6 @@
+using Finrex_App.Application.DTOs;
+using Finrex_App.Application.Validators;
 using Finrex_App.Core.DTOs;
-using Finrex_App.Core.Entities;
 using Finrex_App.Services;
 using Finrex_App.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -12,11 +13,13 @@ public class LoginUsersController : ControllerBase
 {
     private readonly IAuthServices _authService;
     private readonly ILogger<LoginUsersController> _logger;
-
-    public LoginUsersController( IAuthServices authService, ILogger<LoginUsersController> logger )
+    private readonly RegisterDTOValidator _dtoValidator;
+    
+    public LoginUsersController( IAuthServices authService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator )
     {
         _authService = authService;
         _logger = logger;
+        _dtoValidator = dtoValidator;
     }
 
     [HttpPost( "register" )]
@@ -24,13 +27,22 @@ public class LoginUsersController : ControllerBase
     {
         try
         {
-            if ( !ModelState.IsValid )
+            var validationResult = await _dtoValidator.ValidateAsync( registerDto );
+            if ( !validationResult.IsValid )
             {
-                return BadRequest( ModelState );
+                var errors = validationResult.Errors.Select( e => new
+                {
+                    Campo = e.PropertyName,
+                    Mensagem = e.ErrorMessage,
+                });
+                return BadRequest(new
+                {
+                    Sucesso = false,
+                    Erros = errors
+                });
             }
 
             var result = await _authService.RegisterAsync( registerDto );
-
             if ( !result )
             {
                 return BadRequest( "Não foi possivel realizar o cadastro" );

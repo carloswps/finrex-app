@@ -1,3 +1,4 @@
+using Finrex_App.Application.DTOs;
 using Finrex_App.Core.DTOs;
 using Finrex_App.Infra.Data;
 using Finrex_App.Services.Interface;
@@ -18,7 +19,7 @@ public class RegisterDTOValidator : AbstractValidator<RegisterDTO>
             .Length( 2, 100 ).WithMessage( "O nome deve ter entre 2 e 100 caracteres." );
         RuleFor( x => x.Email )
             .NotEmpty().WithMessage( "Por favor informe o seu email." )
-            .EmailAddress().WithMessage( "Por favor informe um e-mail válido")
+            .EmailAddress().WithMessage( "Por favor informe um e-mail válido" )
             .MustAsync( BeUniqueEmail ).WithMessage( "Este e-mail já esta cadastrado." );
         RuleFor( x => x.Senha )
             .NotEmpty().WithMessage( "Por favor informe a sua senha." )

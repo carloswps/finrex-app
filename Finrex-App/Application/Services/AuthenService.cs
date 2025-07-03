@@ -1,9 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using DevOne.Security.Cryptography.BCrypt;
+using Finrex_App.Application.DTOs;
 using Finrex_App.Core.DTOs;
-using Finrex_App.Core.Entities;
 using Finrex_App.Core.JwtGenerate;
+using Finrex_App.Domain.Entities;
 using Finrex_App.Infra.Data;
 using Finrex_App.Services.Interface;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -34,12 +36,13 @@ public class AuthService : IAuthServices
             {
                 return false;
             }
-
+                
+            var senhaUserHash = BCrypt.Net.BCrypt.HashPassword( registerDto.Senha );
             var user = new User
             {
                 Nome = registerDto.Nome,
                 Email = registerDto.Email,
-                Senha = registerDto.Senha,
+                Senha = senhaUserHash,
                 CriadoEm = DateTime.UtcNow,
                 AtualizadoEm = DateTime.UtcNow
             };
@@ -61,20 +64,21 @@ public class AuthService : IAuthServices
     }
 
 
-    public async Task<string> LoginAsync( LoginUserDto loginUserDto )
+    public async Task<string?> LoginAsync( LoginUserDto loginUserDto )
     {
         var user = await _context.Users
-            .FirstOrDefaultAsync( u => u.Email == loginUserDto.Email && u.Senha == loginUserDto.Senha );
+            .FirstOrDefaultAsync( u => u.Email == loginUserDto.Email );
 
-        if ( user == null )
-        {
+        if ( user == null ) { return null; }
+        
+        var senhaOk = BCrypt.Net.BCrypt.Verify(loginUserDto.Senha, user.Senha);
+        if (!senhaOk)
             return null;
-        }
 
         return GenerateToken( user );
     }
 
-    public string GenerateToken( User user )
+    public string? GenerateToken( User user )
     {
         var key = Encoding.UTF8.GetBytes( _configuration[ "Jwt:Key" ] ??
                                           throw new InvalidOperationException( "Nenhuma chave encontrada" ) );

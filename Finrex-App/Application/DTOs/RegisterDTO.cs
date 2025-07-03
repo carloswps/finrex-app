@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace Finrex_App.Core.DTOs;
+namespace Finrex_App.Application.DTOs;
 
 public class RegisterDTO
 {

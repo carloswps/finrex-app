@@ -1,9 +1,8 @@
 using System.Reflection;
 using System.Text;
 using Finrex_App.Core.DTOs;
-using Finrex_App.Core.Entities;
 using Finrex_App.Core.Example;
-using Finrex_App.Core.Middleware;
+using Finrex_App.Infra.Api.Middleware;
 using Finrex_App.Infra.Data;
 using Finrex_App.Services;
 using Finrex_App.Services.Interface;
@@ -22,17 +21,16 @@ using FluentValidation.AspNetCore;
 var builder = WebApplication.CreateBuilder( args );
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions( Options =>
+    {
+        Options.SuppressModelStateInvalidFilter = true;
+    } );
 builder.Services.AddEndpointsApiExplorer();
-
-// Validator
-builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly( Assembly.GetExecutingAssembly() );
 
 // DI
 builder.Services.AddScoped<IAuthServices, AuthService>();
-builder.Services.AddScoped<IAuthServices, AuthService>();
-builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddScoped<LoginUserDto, LoginUserDto>();
 
 // Cache config

@@ -1,7 +1,8 @@
 using System.Net;
 using System.Text.Json;
+using FluentValidation;
 
-namespace Finrex_App.Core.Middleware;
+namespace Finrex_App.Infra.Api.Middleware;
 
 /// <summary>
 /// Represents a middleware component for handling exceptions during the HTTP request processing pipeline.
@@ -35,15 +36,34 @@ public class ErrorHandlingMiddleware
 
     private static Task HandleExceptionAsync( HttpContext context, Exception exception )
     {
+        // Treating error validations fluentValidation
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var response = new
+        if ( exception is ValidationException validationException )
+        {
+            var error = validationException.Errors.Select( e => new
+            {
+                Campo = e.PropertyName,
+                Erro = e.ErrorMessage
+            } );
+
+            var response = new
+            {
+                Sucesso = false,
+                Erros = error,
+                Message = "Erro de validação"
+            };
+            return context.Response.WriteAsJsonAsync( response  );
+        }
+        
+        // Treating generic errors
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        var genericResponse = new
         {
             status = context.Response.StatusCode,
             message = "Ocorreu um erro ao processar a requisição. ",
             detailedMessage = exception.Message
         };
-        return context.Response.WriteAsJsonAsync( JsonSerializer.Serialize( response ) );
+        return context.Response.WriteAsJsonAsync( genericResponse  );
     }
 }

@@ -1,4 +1,4 @@
-using Finrex_App.Core.Entities;
+using Finrex_App.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Finrex_App.Infra.Data;

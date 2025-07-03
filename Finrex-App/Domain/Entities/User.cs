@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Finrex_App.Core.Entities;
+namespace Finrex_App.Domain.Entities;
 
 /// <summary>
 /// Represents a user within the Finrex application.
