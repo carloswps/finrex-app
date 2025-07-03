@@ -14,6 +14,7 @@
 
     <ItemGroup>
         <PackageReference Include="BCrypt" Version="1.0.0"/>
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.17"/>
         <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0"/>
@@ -30,16 +31,33 @@
         <Content Include="..\.dockerignore">
             <Link>.dockerignore</Link>
         </Content>
+        <Content Remove="Core\**" />
+        <Content Remove="Data\**" />
     </ItemGroup>
 
     <ItemGroup>
         <None Update="compose.yaml">
             <DependentUpon>Dockerfile</DependentUpon>
         </None>
+        <None Remove="Core\**" />
+        <None Remove="Data\**" />
     </ItemGroup>
 
     <ItemGroup>
         <Compile Remove="Core\Controllers\TesteController.cs"/>
+        <Compile Remove="Core\**" />
+        <Compile Remove="Data\**" />
+        <Compile Remove="Infra\Api\Controllers\TesteController.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Domain\" />
+      <Folder Include="Infra\Api\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Core\**" />
+      <EmbeddedResource Remove="Data\**" />
     </ItemGroup>
 
 </Project>

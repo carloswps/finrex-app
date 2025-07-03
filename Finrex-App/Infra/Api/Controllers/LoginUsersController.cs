@@ -8,19 +8,19 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [ApiVersion( "1.0" )]
 [Route( "api/v{version:apiVersion}/[controller]" )]
-public class AuthController : ControllerBase
+public class LoginUsersController : ControllerBase
 {
     private readonly IAuthServices _authService;
-    private readonly ILogger<AuthController> _logger;
+    private readonly ILogger<LoginUsersController> _logger;
 
-    public AuthController( IAuthServices authService, ILogger<AuthController> logger )
+    public LoginUsersController( IAuthServices authService, ILogger<LoginUsersController> logger )
     {
         _authService = authService;
         _logger = logger;
     }
 
     [HttpPost( "register" )]
-    public async Task<IActionResult> Register( RegisterDTO registerDto )
+    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto )
     {
         try
         {
@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost( "login" )]
-    public async Task<IActionResult> Login( LoginUserDto loginUserDto )
+    public async Task<IActionResult> Login([FromBody] LoginUserDto loginUserDto )
     {
         var token = await _authService.LoginAsync( loginUserDto );
         if ( token == null )

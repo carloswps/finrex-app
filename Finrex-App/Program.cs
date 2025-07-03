@@ -16,12 +16,18 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder( args );
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Validator
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssembly( Assembly.GetExecutingAssembly() );
 
 // DI
 builder.Services.AddScoped<IAuthServices, AuthService>();
