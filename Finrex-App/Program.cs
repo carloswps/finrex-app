@@ -1,11 +1,12 @@
 using System.Reflection;
 using System.Text;
+using Finrex_App.Application.JwtGenerate;
+using Finrex_App.Application.Services;
+using Finrex_App.Application.Services.Interface;
 using Finrex_App.Core.DTOs;
 using Finrex_App.Core.Example;
 using Finrex_App.Infra.Api.Middleware;
 using Finrex_App.Infra.Data;
-using Finrex_App.Services;
-using Finrex_App.Services.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -28,10 +29,12 @@ builder.Services.AddControllers()
     } );
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddValidatorsFromAssembly( Assembly.GetExecutingAssembly() );
-
-// DI
-builder.Services.AddScoped<IAuthServices, AuthService>();
+builder.Services.AddLogging();
+builder.Services.AddScoped<IFinancialTransactionService, FinancialTransactionService>();
+builder.Services.AddScoped<ILoginUserServices, LoginUserService>();
+builder.Services.AddScoped<TokeService>();
 builder.Services.AddScoped<LoginUserDto, LoginUserDto>();
+builder.Services.AddScoped<TokeService>();
 
 // Cache config
 builder.Services.AddMemoryCache();
@@ -49,11 +52,13 @@ builder.Services.AddAuthentication( JwtBearerDefaults.AuthenticationScheme )
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey( key ),
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            ValidateIssuer = true,
+            ValidateAudience = true,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"]
         };
     } );
 
@@ -131,9 +136,6 @@ builder.Services.AddVersionedApiExplorer( options =>
 // Configure DbContext
 builder.Services.AddDbContext<AppDbContext>( options =>
     options.UseNpgsql( builder.Configuration.GetConnectionString( "DefaultConnection" ) ) );
-
-// Register services
-builder.Services.AddScoped<IAuthServices, AuthService>();
 
 // Add CORS
 builder.Services.AddCors( options =>

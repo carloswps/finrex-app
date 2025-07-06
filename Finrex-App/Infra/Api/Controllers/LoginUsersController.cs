@@ -1,8 +1,7 @@
 using Finrex_App.Application.DTOs;
+using Finrex_App.Application.Services.Interface;
 using Finrex_App.Application.Validators;
 using Finrex_App.Core.DTOs;
-using Finrex_App.Services;
-using Finrex_App.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,13 +10,13 @@ using Microsoft.AspNetCore.Mvc;
 [Route( "api/v{version:apiVersion}/[controller]" )]
 public class LoginUsersController : ControllerBase
 {
-    private readonly IAuthServices _authService;
+    private readonly ILoginUserServices _loginUserService;
     private readonly ILogger<LoginUsersController> _logger;
     private readonly RegisterDTOValidator _dtoValidator;
     
-    public LoginUsersController( IAuthServices authService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator )
+    public LoginUsersController( ILoginUserServices loginUserService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator )
     {
-        _authService = authService;
+        _loginUserService = loginUserService;
         _logger = logger;
         _dtoValidator = dtoValidator;
     }
@@ -42,7 +41,7 @@ public class LoginUsersController : ControllerBase
                 });
             }
 
-            var result = await _authService.RegisterAsync( registerDto );
+            var result = await _loginUserService.RegisterAsync( registerDto );
             if ( !result )
             {
                 return BadRequest( "Não foi possivel realizar o cadastro" );
@@ -60,7 +59,7 @@ public class LoginUsersController : ControllerBase
     [HttpPost( "login" )]
     public async Task<IActionResult> Login([FromBody] LoginUserDto loginUserDto )
     {
-        var token = await _authService.LoginAsync( loginUserDto );
+        var token = await _loginUserService.LoginAsync( loginUserDto );
         if ( token == null )
         {
             return Unauthorized( "Credenciais invalidas" );
@@ -74,7 +73,7 @@ public class LoginUsersController : ControllerBase
     [HttpGet( "usuarios-temporarios" )]
     public OkObjectResult GetAll()
     {
-        var users = _authService.GetUsers();
+        var users = _loginUserService.GetUsers();
         return Ok( users );
     }
 }

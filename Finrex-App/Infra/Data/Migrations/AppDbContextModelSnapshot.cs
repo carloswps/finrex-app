@@ -22,7 +22,79 @@ namespace Finrex_App.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Finrex_App.Core.Entities.User", b =>
+            modelBuilder.Entity("Finrex_App.Domain.Entities.MonthlyIncome", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Benefits")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("BussinesProfit")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Freelance")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("MainIncome")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Mes")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Other")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("MIncome");
+                });
+
+            modelBuilder.Entity("Finrex_App.Domain.Entities.MonthlySpending", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Entertainment")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Groceries")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Mes")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Rent")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Transportation")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Utilities")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("MSpending");
+                });
+
+            modelBuilder.Entity("Finrex_App.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,8 +115,7 @@ namespace Finrex_App.Data.Migrations
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Senha")
                         .IsRequired()
@@ -56,6 +127,35 @@ namespace Finrex_App.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Finrex_App.Domain.Entities.MonthlyIncome", b =>
+                {
+                    b.HasOne("Finrex_App.Domain.Entities.User", "User")
+                        .WithMany("MonthlyIncomes")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Finrex_App.Domain.Entities.MonthlySpending", b =>
+                {
+                    b.HasOne("Finrex_App.Domain.Entities.User", "User")
+                        .WithMany("MonthlySpendings")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Finrex_App.Domain.Entities.User", b =>
+                {
+                    b.Navigation("MonthlyIncomes");
+
+                    b.Navigation("MonthlySpendings");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,31 +1,24 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using DevOne.Security.Cryptography.BCrypt;
 using Finrex_App.Application.DTOs;
+using Finrex_App.Application.JwtGenerate;
+using Finrex_App.Application.Services.Interface;
 using Finrex_App.Core.DTOs;
-using Finrex_App.Core.JwtGenerate;
 using Finrex_App.Domain.Entities;
 using Finrex_App.Infra.Data;
-using Finrex_App.Services.Interface;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
-namespace Finrex_App.Services;
+namespace Finrex_App.Application.Services;
 
-public class AuthService : IAuthServices
+public class LoginUserService : ILoginUserServices
 {
     private readonly AppDbContext _context;
-    private readonly ILogger<AuthService> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly ILogger<LoginUserService> _logger;
+    private readonly TokeService _tokeService;
 
-    public AuthService( AppDbContext context, ILogger<AuthService> logger, IConfiguration configuration )
+    public LoginUserService( AppDbContext context, ILogger<LoginUserService> logger, TokeService tokeService )
     {
         _context = context;
         _logger = logger;
-        _configuration = configuration;
+        _tokeService = tokeService;
     }
 
     public async Task<bool> RegisterAsync( RegisterDTO registerDto )
@@ -75,26 +68,6 @@ public class AuthService : IAuthServices
         if (!senhaOk)
             return null;
 
-        return GenerateToken( user );
-    }
-
-    public string? GenerateToken( User user )
-    {
-        var key = Encoding.UTF8.GetBytes( _configuration[ "Jwt:Key" ] ??
-                                          throw new InvalidOperationException( "Nenhuma chave encontrada" ) );
-        var tokenConfig = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity( new Claim[]
-            {
-                new( "user", user.Email )
-            } ),
-            Expires = DateTime.UtcNow.AddDays( 7 ),
-            SigningCredentials = new SigningCredentials( new SymmetricSecurityKey( key ),
-                SecurityAlgorithms.HmacSha256Signature )
-        };
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken( tokenConfig );
-        var TokenString = tokenHandler.WriteToken( token );
-        return TokenString;
+        return _tokeService.GenerateToken( user );
     }
 }
