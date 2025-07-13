@@ -12,6 +12,7 @@ obj/
 .vscode/
 .idea/
 *.csproj.user
+data/db/
 
 # Arquivos de log e cache
 *.log

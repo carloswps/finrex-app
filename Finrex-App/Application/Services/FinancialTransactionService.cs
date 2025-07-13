@@ -16,13 +16,14 @@ public class FinancialTransactionService : IFinancialTransactionService
         _logger = logger;
     }
     
-    public async Task<bool> RegisterMIncomeAsync( MIncomeDto mIncomeDto, int usuarioId )
+    public async Task<bool> RegisterMIncomeAsync( MIncomeDto mIncomeDto, int userId )
     {
         try
         {
             var mIncome = new MonthlyIncome
             {
-                UsuarioId = usuarioId,
+                Mes = mIncomeDto.Mes,
+                UsuarioId = userId,
                MainIncome = mIncomeDto.MainIncome ?? 0,
                Freelance = mIncomeDto.Freelance ?? 0,
                Benefits = mIncomeDto.Benefits ?? 0,
