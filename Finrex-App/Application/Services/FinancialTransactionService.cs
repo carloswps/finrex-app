@@ -15,7 +15,7 @@ public class FinancialTransactionService : IFinancialTransactionService
         _context = context;
         _logger = logger;
     }
-    
+
     public async Task<bool> RegisterMIncomeAsync( MIncomeDto mIncomeDto, int userId )
     {
         try
@@ -24,16 +24,15 @@ public class FinancialTransactionService : IFinancialTransactionService
             {
                 Mes = mIncomeDto.Mes,
                 UsuarioId = userId,
-               MainIncome = mIncomeDto.MainIncome ?? 0,
-               Freelance = mIncomeDto.Freelance ?? 0,
-               Benefits = mIncomeDto.Benefits ?? 0,
-               BussinesProfit = mIncomeDto.BussinesProfit ?? 0,
-               Other = mIncomeDto.Other ?? 0
+                MainIncome = mIncomeDto.MainIncome ?? 0,
+                Freelance = mIncomeDto.Freelance ?? 0,
+                Benefits = mIncomeDto.Benefits ?? 0,
+                BussinesProfit = mIncomeDto.BussinesProfit ?? 0,
+                Other = mIncomeDto.Other ?? 0
             };
             await _context.MIncome.AddAsync( mIncome );
             await _context.SaveChangesAsync();
             return true;
-
         } catch ( Exception ex )
         {
             _logger.LogError( ex, "Erro ao cadastrar Valores" );
@@ -41,5 +40,28 @@ public class FinancialTransactionService : IFinancialTransactionService
         }
     }
 
-    
+    public async Task<bool> RegisterMSpendingAsync( MSpendingDtO mSpendingDto, int userId )
+    {
+        try
+        {
+            var mSpendin = new MonthlySpending
+            {
+                Mes = mSpendingDto.Mes,
+                UsuarioId = userId,
+                Entertainment = mSpendingDto.Entertainment ?? 0,
+                Transportation = mSpendingDto.Transportation ?? 0,
+                Rent = mSpendingDto.Rent ?? 0,
+                Groceries = mSpendingDto.Groceries ?? 0,
+                Utilities = mSpendingDto.Utilities ?? 0
+            };
+
+            await _context.MSpending.AddAsync( mSpendin );
+            await _context.SaveChangesAsync();
+            return true;
+        } catch ( Exception ex )
+        {
+            _logger.LogError( ex, "Erro ao cadastrar Valores" );
+            throw;
+        }
+    }
 }

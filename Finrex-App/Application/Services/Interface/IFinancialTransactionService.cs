@@ -5,4 +5,7 @@ namespace Finrex_App.Application.Services.Interface;
 public interface IFinancialTransactionService
 {
     Task<bool> RegisterMIncomeAsync( MIncomeDto mIncomeDto, int userId );
+
+    Task<bool> RegisterMSpendingAsync( MSpendingDtO mSpendingDto, int userId );
 }
+
