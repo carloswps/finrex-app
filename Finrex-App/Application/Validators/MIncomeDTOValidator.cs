@@ -7,11 +7,14 @@ namespace Finrex_App.Application.Validators;
 public class MIncomeDTOValidator : AbstractValidator<MIncomeDto>
 {
     private readonly AppDbContext _dbContext;
-    public MIncomeDTOValidator(AppDbContext dbContext)
+
+    public MIncomeDTOValidator( AppDbContext dbContext )
     {
         _dbContext = dbContext;
-        RuleFor( x => x.Mes )
-            .NotEmpty().WithMessage( "Por favor digite um mês" )
-            .InclusiveBetween( 1 , 12 ).WithMessage( "Por favor digtite um mês valido" );
+        RuleFor( x => x.Date )
+            .NotEmpty().WithMessage( "Por favor digite uma data valida" )
+            .LessThanOrEqualTo( DateTime.Today )
+            .GreaterThanOrEqualTo( DateTime.Today.AddMonths( -1 ) )
+            .WithMessage( "A data não pode ser maior que o dia atual" );
     }
 }

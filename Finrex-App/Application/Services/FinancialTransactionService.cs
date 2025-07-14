@@ -22,7 +22,7 @@ public class FinancialTransactionService : IFinancialTransactionService
         {
             var mIncome = new MonthlyIncome
             {
-                Mes = mIncomeDto.Mes,
+                Date = mIncomeDto.Date,
                 UsuarioId = userId,
                 MainIncome = mIncomeDto.MainIncome ?? 0,
                 Freelance = mIncomeDto.Freelance ?? 0,
@@ -46,7 +46,7 @@ public class FinancialTransactionService : IFinancialTransactionService
         {
             var mSpendin = new MonthlySpending
             {
-                Mes = mSpendingDto.Mes,
+                Date = mSpendingDto.Date,
                 UsuarioId = userId,
                 Entertainment = mSpendingDto.Entertainment ?? 0,
                 Transportation = mSpendingDto.Transportation ?? 0,
