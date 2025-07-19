@@ -4,7 +4,7 @@ public class MonthlyIncome
 {
     public int Id { get; set; }
     public int UsuarioId { get; set; }
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public decimal MainIncome { get; set; }
     public decimal Freelance { get; set; }
     public decimal Benefits { get; set; }

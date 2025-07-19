@@ -2,7 +2,7 @@ namespace Finrex_App.Application.DTOs;
 
 public class MSpendingDtO
 {
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
     public decimal? Transportation { get; set; }
     public decimal? Entertainment { get; set; }
     public decimal? Rent { get; set; }

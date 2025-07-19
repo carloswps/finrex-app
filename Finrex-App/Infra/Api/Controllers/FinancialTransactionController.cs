@@ -14,21 +14,21 @@ namespace Finrex_App.Infra.Api.Controllers;
 public class FinancialTransactionController : ControllerBase
 {
     private readonly MIncomeDTOValidator _dtoMIValidator;
-    private readonly MSpendingDTOValidator _dtoMSValidator;
+    private readonly MSpendingDTOValidator _dtoMsValidator;
     private readonly IFinancialTransactionService _financialTransactionService;
     private readonly ILogger<FinancialTransactionController> _logger;
     private readonly ILoginUserServices _loginUserServices;
 
     public FinancialTransactionController(
         IFinancialTransactionService financialTransactionService, ILoginUserServices loginUserServices,
-        ILogger<FinancialTransactionController> logger, MSpendingDTOValidator dtoValidatorMI,
+        ILogger<FinancialTransactionController> logger, MIncomeDTOValidator dtoValidatorMi,
         MSpendingDTOValidator dtoMsValidator )
     {
         _financialTransactionService = financialTransactionService;
         _loginUserServices = loginUserServices;
         _logger = logger;
-        _dtoMSValidator = dtoValidatorMI;
-        _dtoMSValidator = dtoMsValidator;
+        _dtoMsValidator = dtoMsValidator;
+        _dtoMIValidator = dtoValidatorMi;
     }
 
     [HttpPost( "income" )]
@@ -87,7 +87,7 @@ public class FinancialTransactionController : ControllerBase
             return Unauthorized( "Id do usuario não encontrado no token" );
         }
 
-        var validationResult = await _dtoMSValidator.ValidateAsync( mSpendingDto );
+        var validationResult = await _dtoMsValidator.ValidateAsync( mSpendingDto );
         if ( !validationResult.IsValid )
         {
             var errors = validationResult.Errors.Select( e => new

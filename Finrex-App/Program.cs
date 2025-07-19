@@ -3,6 +3,7 @@ using System.Text;
 using Finrex_App.Application.JwtGenerate;
 using Finrex_App.Application.Services;
 using Finrex_App.Application.Services.Interface;
+using Finrex_App.Application.Validators;
 using Finrex_App.Core.DTOs;
 using Finrex_App.Core.Example;
 using Finrex_App.Infra.Api.Middleware;
@@ -35,6 +36,8 @@ builder.Services.AddScoped<ILoginUserServices, LoginUserService>();
 builder.Services.AddScoped<TokeService>();
 builder.Services.AddScoped<LoginUserDto, LoginUserDto>();
 builder.Services.AddScoped<TokeService>();
+builder.Services.AddScoped<MIncomeDTOValidator>();
+builder.Services.AddScoped<MSpendingDTOValidator>();
 
 // Cache config
 builder.Services.AddMemoryCache();
@@ -53,12 +56,12 @@ builder.Services.AddAuthentication( JwtBearerDefaults.AuthenticationScheme )
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+                Encoding.UTF8.GetBytes( builder.Configuration[ "Jwt:Key" ] ) ),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"]
+            ValidIssuer = builder.Configuration[ "Jwt:Issuer" ],
+            ValidAudience = builder.Configuration[ "Jwt:Audience" ]
         };
     } );
 

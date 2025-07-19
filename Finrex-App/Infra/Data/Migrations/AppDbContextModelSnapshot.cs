@@ -36,14 +36,14 @@ namespace Finrex_App.Data.Migrations
                     b.Property<decimal>("BussinesProfit")
                         .HasColumnType("numeric");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("date");
+
                     b.Property<decimal>("Freelance")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("MainIncome")
                         .HasColumnType("numeric");
-
-                    b.Property<int>("Mes")
-                        .HasColumnType("integer");
 
                     b.Property<decimal>("Other")
                         .HasColumnType("numeric");
@@ -66,14 +66,14 @@ namespace Finrex_App.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("date");
+
                     b.Property<decimal>("Entertainment")
                         .HasColumnType("numeric");
 
                     b.Property<decimal>("Groceries")
                         .HasColumnType("numeric");
-
-                    b.Property<int>("Mes")
-                        .HasColumnType("integer");
 
                     b.Property<decimal>("Rent")
                         .HasColumnType("numeric");
@@ -103,19 +103,15 @@ namespace Finrex_App.Data.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("date");
 
                     b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("date");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("Senha")
                         .IsRequired()

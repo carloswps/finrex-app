@@ -29,15 +29,14 @@ public class LoginUserService : ILoginUserServices
             {
                 return false;
             }
-                
+
             var senhaUserHash = BCrypt.Net.BCrypt.HashPassword( registerDto.Senha );
             var user = new User
             {
-                Nome = registerDto.Nome,
                 Email = registerDto.Email,
                 Senha = senhaUserHash,
-                CriadoEm = DateTime.UtcNow,
-                AtualizadoEm = DateTime.UtcNow
+                CriadoEm = DateOnly.MinValue,
+                AtualizadoEm = DateOnly.MinValue
             };
 
             _context.Users.Add( user );
@@ -63,10 +62,12 @@ public class LoginUserService : ILoginUserServices
             .FirstOrDefaultAsync( u => u.Email == loginUserDto.Email );
 
         if ( user == null ) { return null; }
-        
-        var senhaOk = BCrypt.Net.BCrypt.Verify(loginUserDto.Senha, user.Senha);
-        if (!senhaOk)
+
+        var senhaOk = BCrypt.Net.BCrypt.Verify( loginUserDto.Senha, user.Senha );
+        if ( !senhaOk )
+        {
             return null;
+        }
 
         return _tokeService.GenerateToken( user );
     }

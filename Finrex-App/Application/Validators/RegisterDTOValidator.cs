@@ -9,13 +9,10 @@ namespace Finrex_App.Application.Validators;
 public class RegisterDTOValidator : AbstractValidator<RegisterDTO>
 {
     private readonly AppDbContext _dbContext;
-    
-    public RegisterDTOValidator(AppDbContext dbContext)
+
+    public RegisterDTOValidator( AppDbContext dbContext )
     {
         _dbContext = dbContext;
-        RuleFor( x => x.Nome )
-            .NotEmpty().WithMessage( "Por favor informe o seu nome." )
-            .Length( 2, 100 ).WithMessage( "O nome deve ter entre 2 e 100 caracteres." );
         RuleFor( x => x.Email )
             .NotEmpty().WithMessage( "Por favor informe o seu email." )
             .EmailAddress().WithMessage( "Por favor informe um e-mail válido" )
@@ -29,7 +26,7 @@ public class RegisterDTOValidator : AbstractValidator<RegisterDTO>
 
     private async Task<bool> BeUniqueEmail( string email, CancellationToken cancellationToken )
     {
-        var userExists = await _dbContext.Users.AnyAsync(u => u.Email == email, cancellationToken: cancellationToken );
+        var userExists = await _dbContext.Users.AnyAsync( u => u.Email == email, cancellationToken );
         return !userExists;
     }
 }

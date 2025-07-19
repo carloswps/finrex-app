@@ -14,7 +14,7 @@ namespace Finrex_App.Infra.Data;
 /// </remarks>
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    public AppDbContext( DbContextOptions<AppDbContext> options ) : base( options )
     {
         Users = Set<User>();
         MIncome = Set<MonthlyIncome>();
@@ -25,31 +25,54 @@ public class AppDbContext : DbContext
     public DbSet<MonthlyIncome> MIncome { get; set; }
     public DbSet<MonthlySpending> MSpending { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating( ModelBuilder modelBuilder )
     {
-        base.OnModelCreating(modelBuilder);
-        
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
-            entity.HasIndex(e => e.Email).IsUnique();
-            entity.Property(e => e.Senha).IsRequired();
-        });
+        base.OnModelCreating( modelBuilder );
 
-        modelBuilder.Entity<MonthlyIncome>(entity =>
+        modelBuilder.Entity<User>( entity =>
         {
-            entity.HasOne(mi => mi.User)          
-                .WithMany(u => u.MonthlyIncomes) 
-                .HasForeignKey(mi => mi.UsuarioId); 
-        });
-        
-        modelBuilder.Entity<MonthlySpending>(entity =>
+            entity.HasKey( e => e.Id );
+            entity.Property( e => e.Email ).IsRequired().HasMaxLength( 100 );
+            entity.HasIndex( e => e.Email ).IsUnique();
+            entity.Property( e => e.Senha ).IsRequired();
+            entity.Property( e => e.CriadoEm )
+                .HasConversion(
+                    v => v.ToDateTime( TimeOnly.MinValue ),
+                    v => DateOnly.FromDateTime( v )
+                )
+                .HasColumnType( "date" );
+            entity.Property( e => e.AtualizadoEm )
+                .HasConversion(
+                    v => v.ToDateTime( TimeOnly.MinValue ),
+                    v => DateOnly.FromDateTime( v )
+                )
+                .HasColumnType( "date" );
+        } );
+
+        modelBuilder.Entity<MonthlyIncome>( entity =>
         {
-            entity.HasOne(mi => mi.User)          
-                .WithMany(u => u.MonthlySpendings) 
-                .HasForeignKey(mi => mi.UsuarioId); 
-        });
+            entity.HasOne( mi => mi.User )
+                .WithMany( u => u.MonthlyIncomes )
+                .HasForeignKey( mi => mi.UsuarioId );
+            entity.Property( mi => mi.Date )
+                .HasConversion(
+                    mi => mi.ToDateTime( TimeOnly.MinValue ),
+                    mi => DateOnly.FromDateTime( mi )
+                )
+                .HasColumnType( "date" );
+        } );
+
+        modelBuilder.Entity<MonthlySpending>( entity =>
+        {
+            entity.HasOne( mi => mi.User )
+                .WithMany( u => u.MonthlySpendings )
+                .HasForeignKey( mi => mi.UsuarioId );
+            entity.Property( ms => ms.Date )
+                .HasConversion(
+                    ms => ms.ToDateTime( TimeOnly.MinValue ),
+                    ms => DateOnly.FromDateTime( ms )
+                )
+                .HasColumnType( "date" );
+        } );
     }
 }
-

@@ -12,9 +12,7 @@ public class MIncomeDTOValidator : AbstractValidator<MIncomeDto>
     {
         _dbContext = dbContext;
         RuleFor( x => x.Date )
-            .NotEmpty().WithMessage( "Por favor digite uma data valida" )
-            .LessThanOrEqualTo( DateTime.Today )
-            .GreaterThanOrEqualTo( DateTime.Today.AddMonths( -1 ) )
-            .WithMessage( "A data não pode ser maior que o dia atual" );
+            .LessThanOrEqualTo( DateOnly.FromDateTime( DateTime.Today ) )
+            .NotEmpty().WithMessage( "Por favor digite uma data valida" );
     }
 }
