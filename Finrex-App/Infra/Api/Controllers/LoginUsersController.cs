@@ -13,8 +13,9 @@ public class LoginUsersController : ControllerBase
     private readonly ILoginUserServices _loginUserService;
     private readonly ILogger<LoginUsersController> _logger;
     private readonly RegisterDTOValidator _dtoValidator;
-    
-    public LoginUsersController( ILoginUserServices loginUserService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator )
+
+    public LoginUsersController(
+        ILoginUserServices loginUserService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator )
     {
         _loginUserService = loginUserService;
         _logger = logger;
@@ -22,7 +23,7 @@ public class LoginUsersController : ControllerBase
     }
 
     [HttpPost( "register" )]
-    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto )
+    public async Task<IActionResult> Register( [FromBody] RegisterDTO registerDto )
     {
         try
         {
@@ -32,13 +33,13 @@ public class LoginUsersController : ControllerBase
                 var errors = validationResult.Errors.Select( e => new
                 {
                     Campo = e.PropertyName,
-                    Mensagem = e.ErrorMessage,
-                });
-                return BadRequest(new
+                    Mensagem = e.ErrorMessage
+                } );
+                return BadRequest( new
                 {
                     Sucesso = false,
                     Erros = errors
-                });
+                } );
             }
 
             var result = await _loginUserService.RegisterAsync( registerDto );
@@ -57,7 +58,7 @@ public class LoginUsersController : ControllerBase
     }
 
     [HttpPost( "login" )]
-    public async Task<IActionResult> Login([FromBody] LoginUserDto loginUserDto )
+    public async Task<IActionResult> Login( [FromBody] LoginUserDto loginUserDto )
     {
         var token = await _loginUserService.LoginAsync( loginUserDto );
         if ( token == null )
