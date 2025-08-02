@@ -18,6 +18,14 @@ public class SummaryTransactionController : ControllerBase
         _dbContext = dbContext;
     }
 
+    /// <summary>
+    /// Obtém um resumo das transações financeiras (receitas e despesas) dentro de um período especificado.
+    /// </summary>
+    /// <param name="startDate">Data de início do período do resumo.</param>
+    /// <param name="endDate">Data de fim do período do resumo.</param>
+    /// <returns>Retorna um resumo das transações financeiras.</returns>
+    /// <response code="200">Resumo retornado com sucesso.</response>
+    /// <response code="500">Erro interno do servidor.</response>
     [HttpGet( "summary" )]
     [ProducesResponseType( StatusCodes.Status200OK )]
     [ProducesResponseType( StatusCodes.Status500InternalServerError )]

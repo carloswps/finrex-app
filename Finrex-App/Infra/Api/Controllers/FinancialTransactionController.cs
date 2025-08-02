@@ -31,7 +31,18 @@ public class FinancialTransactionController : ControllerBase
         _dtoMIValidator = dtoValidatorMi;
     }
 
+    /// <summary>
+    /// Registra uma nova entrada de renda mensal para o usuário autenticado.
+    /// </summary>
+    /// <param name="mIncomeDto">Dados da renda mensal a ser registrada.</param>
+    /// <returns>Retorna o status do cadastro da renda.</returns>
+    /// <response code="200">Renda cadastrada com sucesso.</response>
+    /// <response code="400">Dados inválidos ou erro ao processar o cadastro.</response>
+    /// <response code="401">Usuário não autorizado.</response>
     [HttpPost( "income" )]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RegisterMIncomeAsync( MIncomeDto mIncomeDto )
     {
         try
@@ -78,7 +89,18 @@ public class FinancialTransactionController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Registra uma nova despesa mensal para o usuário autenticado.
+    /// </summary>
+    /// <param name="mSpendingDto">Dados da despesa mensal a ser registrada.</param>
+    /// <returns>Retorna o status do cadastro da despesa.</returns>
+    /// <response code="200">Despesa cadastrada com sucesso.</response>
+    /// <response code="400">Dados inválidos ou erro ao processar o cadastro.</response>
+    /// <response code="401">Usuário não autorizado.</response>
     [HttpPost( "spending" )]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RegisterMSpendingAsync( MSpendingDtO mSpendingDto )
     {
         var userId = User.FindFirst( ClaimTypes.NameIdentifier )?.Value;

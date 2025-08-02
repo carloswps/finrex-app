@@ -13,12 +13,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using FluentValidation;
-using FluentValidation.AspNetCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder( args );
 
@@ -65,7 +64,9 @@ builder.Services.AddAuthentication( JwtBearerDefaults.AuthenticationScheme )
         };
     } );
 
-// Config Swagger version
+// Config Swagger version and Scalar documentation
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen( options =>
 {
     // Config jwt schema swagger
@@ -107,8 +108,21 @@ builder.Services.AddSwaggerGen( options =>
         {
             Title = $"Finrex API {description.ApiVersion}",
             Version = description.ApiVersion.ToString(),
-            Description = "API da aplicação Finrex"
+            Description = "Uma API para gerenciamento de finanças pessoais, permitindo o registro de receitas e despesas.",
+            Contact = new OpenApiContact
+            {
+                Name = "Seu Nome",
+                Email = "seu-email@example.com",
+                Url = new Uri("https://seusite.com")
+            },
+            License = new OpenApiLicense
+            {
+                Name = "Licença MIT",
+                Url = new Uri("https://opensource.org/licenses/MIT")
+            }
         } );
+
+        options.AddServer(new OpenApiServer { Url = "http://localhost:5023" });
     }
 
     options.OperationFilter<SwaggerDefaultValues>();
@@ -173,6 +187,10 @@ if ( app.Environment.IsDevelopment() )
 
         options.RoutePrefix = "swagger";
     } );
+} else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 //Não usar Https em desenvolvimento
@@ -182,6 +200,7 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapScalarApiReference();
 app.MapControllers();
 
 app.Run();
