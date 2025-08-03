@@ -17,6 +17,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using FluentValidation;
+using Mapster;
+using MapsterMapper;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder( args );
@@ -37,6 +39,7 @@ builder.Services.AddScoped<LoginUserDto, LoginUserDto>();
 builder.Services.AddScoped<TokeService>();
 builder.Services.AddScoped<MIncomeDTOValidator>();
 builder.Services.AddScoped<MSpendingDTOValidator>();
+builder.Services.AddMapster();
 
 // Cache config
 builder.Services.AddMemoryCache();
@@ -108,21 +111,22 @@ builder.Services.AddSwaggerGen( options =>
         {
             Title = $"Finrex API {description.ApiVersion}",
             Version = description.ApiVersion.ToString(),
-            Description = "Uma API para gerenciamento de finanças pessoais, permitindo o registro de receitas e despesas.",
+            Description
+                = "Uma API para gerenciamento de finanças pessoais, permitindo o registro de receitas e despesas.",
             Contact = new OpenApiContact
             {
                 Name = "Seu Nome",
                 Email = "seu-email@example.com",
-                Url = new Uri("https://seusite.com")
+                Url = new Uri( "https://seusite.com" )
             },
             License = new OpenApiLicense
             {
                 Name = "Licença MIT",
-                Url = new Uri("https://opensource.org/licenses/MIT")
+                Url = new Uri( "https://opensource.org/licenses/MIT" )
             }
         } );
 
-        options.AddServer(new OpenApiServer { Url = "http://localhost:5023" });
+        options.AddServer( new OpenApiServer { Url = "http://localhost:5023" } );
     }
 
     options.OperationFilter<SwaggerDefaultValues>();
@@ -154,30 +158,18 @@ builder.Services.AddVersionedApiExplorer( options =>
 builder.Services.AddDbContext<AppDbContext>( options =>
     options.UseNpgsql( builder.Configuration.GetConnectionString( "DefaultConnection" ) ) );
 
-// Add CORS
-builder.Services.AddCors( options =>
-{
-    options.AddPolicy( "AllowAll",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-        } );
-} );
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if ( app.Environment.IsDevelopment() )
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
 
-    var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-
+    var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
     app.UseSwaggerUI( options =>
     {
-        foreach ( var description in provider.ApiVersionDescriptions )
+        foreach ( var description in apiVersionDescriptionProvider.ApiVersionDescriptions )
         {
             options.SwaggerEndpoint(
                 $"/swagger/{description.GroupName}/swagger.json",
@@ -189,18 +181,35 @@ if ( app.Environment.IsDevelopment() )
     } );
 } else
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI( options =>
+    {
+        var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        foreach ( var description in apiVersionDescriptionProvider.ApiVersionDescriptions )
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                $"Finrex API {description.GroupName.ToUpperInvariant()}"
+            );
+        }
+
+        options.RoutePrefix = "swagger";
+    } );
 }
 
 //Não usar Https em desenvolvimento
 //app.UseHttpsRedirection();
-app.UseCors();
+app.UseCors( "AllowAll" );
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapScalarApiReference();
 app.MapControllers();
+
+app.MapGet( "/docs", context =>
+{
+    context.Response.Redirect( "https://finance-api.apidocumentation.com/finrex-api-10" );
+    return Task.CompletedTask;
+} );
 
 app.Run();

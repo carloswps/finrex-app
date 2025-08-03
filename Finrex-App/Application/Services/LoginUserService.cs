@@ -4,6 +4,7 @@ using Finrex_App.Application.Services.Interface;
 using Finrex_App.Core.DTOs;
 using Finrex_App.Domain.Entities;
 using Finrex_App.Infra.Data;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Finrex_App.Application.Services;
@@ -13,12 +14,15 @@ public class LoginUserService : ILoginUserServices
     private readonly AppDbContext _context;
     private readonly ILogger<LoginUserService> _logger;
     private readonly TokeService _tokeService;
+    private readonly IMapper _mapper;
 
-    public LoginUserService( AppDbContext context, ILogger<LoginUserService> logger, TokeService tokeService )
+    public LoginUserService(
+        AppDbContext context, ILogger<LoginUserService> logger, TokeService tokeService, IMapper mapper )
     {
         _context = context;
         _logger = logger;
         _tokeService = tokeService;
+        _mapper = mapper;
     }
 
     public async Task<bool> RegisterAsync( RegisterDTO registerDto )
@@ -31,13 +35,11 @@ public class LoginUserService : ILoginUserServices
             }
 
             var senhaUserHash = BCrypt.Net.BCrypt.HashPassword( registerDto.Senha );
-            var user = new User
-            {
-                Email = registerDto.Email,
-                Senha = senhaUserHash,
-                CriadoEm = DateOnly.MinValue,
-                AtualizadoEm = DateOnly.MinValue
-            };
+            var user = _mapper.Map<User>( registerDto );
+
+            user.Senha = BCrypt.Net.BCrypt.HashPassword( registerDto.Senha );
+            user.CriadoEm = DateOnly.MinValue;
+            user.AtualizadoEm = DateOnly.MinValue;
 
             _context.Users.Add( user );
             await _context.SaveChangesAsync();
@@ -52,7 +54,7 @@ public class LoginUserService : ILoginUserServices
     public List<User> GetUsers()
     {
         var users = _context.Users.ToList();
-        return users;
+        return _mapper.Map<List<User>>( users );
     }
 
 

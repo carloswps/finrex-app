@@ -2,6 +2,7 @@ using Finrex_App.Application.DTOs;
 using Finrex_App.Application.Services.Interface;
 using Finrex_App.Domain.Entities;
 using Finrex_App.Infra.Data;
+using MapsterMapper;
 
 namespace Finrex_App.Application.Services;
 
@@ -9,27 +10,23 @@ public class FinancialTransactionService : IFinancialTransactionService
 {
     private readonly AppDbContext _context;
     private readonly ILogger<FinancialTransactionService> _logger;
+    private readonly IMapper _mapper;
 
-    public FinancialTransactionService( AppDbContext context, ILogger<FinancialTransactionService> logger )
+    public FinancialTransactionService(
+        AppDbContext context, ILogger<FinancialTransactionService> logger, IMapper mapper )
     {
         _context = context;
         _logger = logger;
+        _mapper = mapper;
     }
 
     public async Task<bool> RegisterMIncomeAsync( MIncomeDto mIncomeDto, int userId )
     {
         try
         {
-            var mIncome = new MonthlyIncome
-            {
-                Date = mIncomeDto.Date,
-                UsuarioId = userId,
-                MainIncome = mIncomeDto.MainIncome ?? 0,
-                Freelance = mIncomeDto.Freelance ?? 0,
-                Benefits = mIncomeDto.Benefits ?? 0,
-                BussinesProfit = mIncomeDto.BussinesProfit ?? 0,
-                Other = mIncomeDto.Other ?? 0
-            };
+            var mIncome = _mapper.Map<MonthlyIncome>( mIncomeDto );
+            mIncome.UsuarioId = userId;
+
             await _context.MIncome.AddAsync( mIncome );
             await _context.SaveChangesAsync();
             return true;
@@ -44,16 +41,8 @@ public class FinancialTransactionService : IFinancialTransactionService
     {
         try
         {
-            var mSpendin = new MonthlySpending
-            {
-                Date = mSpendingDto.Date,
-                UsuarioId = userId,
-                Entertainment = mSpendingDto.Entertainment ?? 0,
-                Transportation = mSpendingDto.Transportation ?? 0,
-                Rent = mSpendingDto.Rent ?? 0,
-                Groceries = mSpendingDto.Groceries ?? 0,
-                Utilities = mSpendingDto.Utilities ?? 0
-            };
+            var mSpendin = _mapper.Map<MonthlySpending>( mSpendingDto );
+            mSpendin.UsuarioId = userId;
 
             await _context.MSpending.AddAsync( mSpendin );
             await _context.SaveChangesAsync();

@@ -21,7 +21,7 @@ public class ErrorHandlingMiddleware
         _next = next;
         _logger = logger;
     }
-    
+
     public async Task InvokeAsync( HttpContext context )
     {
         try
@@ -30,7 +30,7 @@ public class ErrorHandlingMiddleware
         } catch ( Exception e )
         {
             _logger.LogError( e, "Ocorreu um erro não tratado" );
-            await HandleExceptionAsync(context, e);
+            await HandleExceptionAsync( context, e );
         }
     }
 
@@ -39,31 +39,59 @@ public class ErrorHandlingMiddleware
         // Treating error validations fluentValidation
         context.Response.ContentType = "application/json";
 
+        int statusCode;
+        object response;
+
         if ( exception is ValidationException validationException )
         {
-            var error = validationException.Errors.Select( e => new
+            statusCode = ( int )HttpStatusCode.BadRequest;
+
+            var errors = validationException.Errors.Select( e => new
             {
-                Campo = e.PropertyName,
-                Erro = e.ErrorMessage
+                Field = e.PropertyName,
+                Error = e.ErrorMessage
             } );
 
-            var response = new
+            response = new
             {
                 Sucesso = false,
-                Erros = error,
-                Message = "Erro de validação"
+                Erros = statusCode,
+                Message = "Validation error occurred. Please check the fields and try again.",
+                Errors = errors
             };
-            return context.Response.WriteAsJsonAsync( response  );
+        } else if ( exception is UnauthorizedAccessException )
+        {
+            statusCode = ( int )HttpStatusCode.Unauthorized;
+            response = new
+            {
+                Sucesso = false,
+                Erros = statusCode,
+                Message = "You are not authorized to access this resource. Please check your credentials and try again."
+            };
+        } else
+        {
+            statusCode = ( int )HttpStatusCode.InternalServerError;
+            var detailedMessage = exception.Message;
+
+            response = new
+            {
+                Success = false,
+                ErrorCode = statusCode,
+                Message = "An unexpected error occurred. Please try again later.",
+                DetailedMessage = detailedMessage
+            };
+            context.Response.StatusCode = statusCode;
+            return context.Response.WriteAsJsonAsync( response );
         }
-        
+
         // Treating generic errors
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        context.Response.StatusCode = ( int )HttpStatusCode.InternalServerError;
         var genericResponse = new
         {
             status = context.Response.StatusCode,
             message = "Ocorreu um erro ao processar a requisição. ",
             detailedMessage = exception.Message
         };
-        return context.Response.WriteAsJsonAsync( genericResponse  );
+        return context.Response.WriteAsJsonAsync( genericResponse );
     }
 }
