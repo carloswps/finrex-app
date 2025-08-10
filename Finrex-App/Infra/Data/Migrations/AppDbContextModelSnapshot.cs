@@ -102,12 +102,6 @@ namespace Finrex_App.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("AtualizadoEm")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("CriadoEm")
-                        .HasColumnType("date");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)

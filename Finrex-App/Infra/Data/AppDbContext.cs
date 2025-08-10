@@ -35,18 +35,6 @@ public class AppDbContext : DbContext
             entity.Property( e => e.Email ).IsRequired().HasMaxLength( 100 );
             entity.HasIndex( e => e.Email ).IsUnique();
             entity.Property( e => e.Senha ).IsRequired();
-            entity.Property( e => e.CriadoEm )
-                .HasConversion(
-                    v => v.ToDateTime( TimeOnly.MinValue ),
-                    v => DateOnly.FromDateTime( v )
-                )
-                .HasColumnType( "date" );
-            entity.Property( e => e.AtualizadoEm )
-                .HasConversion(
-                    v => v.ToDateTime( TimeOnly.MinValue ),
-                    v => DateOnly.FromDateTime( v )
-                )
-                .HasColumnType( "date" );
         } );
 
         modelBuilder.Entity<MonthlyIncome>( entity =>

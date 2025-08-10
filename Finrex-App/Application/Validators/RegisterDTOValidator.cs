@@ -20,8 +20,6 @@ public class RegisterDTOValidator : AbstractValidator<RegisterDTO>
         RuleFor( x => x.Senha )
             .NotEmpty().WithMessage( "Por favor informe a sua senha." )
             .Length( 6, 100 ).WithMessage( "A senha deve ter entre 6 e 100 caracteres." );
-        RuleFor( x => x.ConfirmarSenha )
-            .NotEmpty().WithMessage( "Por favor confirme a sua senha." );
     }
 
     private async Task<bool> BeUniqueEmail( string email, CancellationToken cancellationToken )

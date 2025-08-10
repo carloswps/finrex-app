@@ -38,8 +38,6 @@ public class LoginUserService : ILoginUserServices
             var user = _mapper.Map<User>( registerDto );
 
             user.Senha = BCrypt.Net.BCrypt.HashPassword( registerDto.Senha );
-            user.CriadoEm = DateOnly.MinValue;
-            user.AtualizadoEm = DateOnly.MinValue;
 
             _context.Users.Add( user );
             await _context.SaveChangesAsync();
