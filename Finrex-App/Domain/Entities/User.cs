@@ -14,10 +14,8 @@ namespace Finrex_App.Domain.Entities;
 public class User
 {
     public int Id { get; set; }
-    public string Email { get; set; }
-    public string Senha { get; set; }
-    public DateOnly CriadoEm { get; set; }
-    public DateOnly AtualizadoEm { get; set; }
+    public string email { get; set; }
+    public string password { get; set; }
 
     // Navigation Properties
     public ICollection<MonthlySpending> MonthlySpendings { get; set; }

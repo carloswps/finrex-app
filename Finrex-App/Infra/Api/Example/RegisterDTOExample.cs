@@ -23,9 +23,8 @@ public abstract class RegisterDtoExample : IExamplesProvider<RegisterDTO>
     {
         return new RegisterDTO
         {
-            Email = "joaquimmiquelteste@gmail.com",
-            Senha = "Senha123",
-            ConfirmarSenha = "Senha123"
+            email = "joaquimmiquelteste@gmail.com",
+            password = "Senha123"
         };
     }
 }

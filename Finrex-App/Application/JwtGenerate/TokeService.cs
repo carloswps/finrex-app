@@ -32,12 +32,12 @@ public class TokeService
         {
             Subject = new ClaimsIdentity( new Claim[]
             {
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()), 
-                new(ClaimTypes.Email, user.Email), 
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) 
+                new( ClaimTypes.NameIdentifier, user.Id.ToString() ),
+                new( ClaimTypes.Email, user.email ),
+                new( JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString() )
             } ),
             Expires = DateTime.UtcNow.AddDays( 7 ),
-            Issuer = _configuration[ "Jwt:Issuer" ], 
+            Issuer = _configuration[ "Jwt:Issuer" ],
             Audience = _configuration[ "Jwt:Audience" ],
             SigningCredentials = new SigningCredentials( new SymmetricSecurityKey( key ),
                 SecurityAlgorithms.HmacSha256Signature )

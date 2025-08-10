@@ -2,9 +2,7 @@ namespace Finrex_App.Application.DTOs;
 
 public class RegisterDTO
 {
-    public string Email { get; set; }
+    public string email { get; set; }
 
-    public string Senha { get; set; }
-
-    public string ConfirmarSenha { get; set; }
+    public string password { get; set; }
 }

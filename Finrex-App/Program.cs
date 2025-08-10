@@ -19,6 +19,7 @@ using Swashbuckle.AspNetCore.Filters;
 using FluentValidation;
 using Mapster;
 using MapsterMapper;
+using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder( args );
@@ -44,6 +45,18 @@ builder.Services.AddMapster();
 // Cache config
 builder.Services.AddMemoryCache();
 builder.Services.AddResponseCaching();
+
+// Add config CORS
+builder.Services.AddCors( options =>
+{
+    options.AddPolicy( "AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        } );
+} );
 
 //JWT Config
 var jwtKey = builder.Configuration.GetSection( "Jwt:Key" ).Value ??
