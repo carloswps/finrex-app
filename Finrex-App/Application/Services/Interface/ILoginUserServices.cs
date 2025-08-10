@@ -7,6 +7,6 @@ namespace Finrex_App.Application.Services.Interface;
 public interface ILoginUserServices
 {
     Task<bool> RegisterAsync( RegisterDTO registerDto );
-    List<User> GetUsers();
+    Task<bool> UserExistsAsync( string email );
     Task<string?> LoginAsync( LoginUserDto loginUserDto );
 }

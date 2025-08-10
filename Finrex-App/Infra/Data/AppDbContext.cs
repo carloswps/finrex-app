@@ -32,9 +32,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<User>( entity =>
         {
             entity.HasKey( e => e.Id );
-            entity.Property( e => e.Email ).IsRequired().HasMaxLength( 100 );
-            entity.HasIndex( e => e.Email ).IsUnique();
-            entity.Property( e => e.Senha ).IsRequired();
+            entity.Property( e => e.email ).IsRequired().HasMaxLength( 100 );
+            entity.HasIndex( e => e.email ).IsUnique();
+            entity.Property( e => e.password ).IsRequired();
         } );
 
         modelBuilder.Entity<MonthlyIncome>( entity =>
