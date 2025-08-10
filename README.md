@@ -21,7 +21,7 @@ Instruções para instalação e execução serão adicionadas em breve.
 
 ## 🔗 Repositório
 
-[Link do repositório Back-end](https://github.com/carloswps/finrex-app/tree/main)
+[Link do repositório Back-end](https://github.com/vngsp/finrex)
 
 ---
 
