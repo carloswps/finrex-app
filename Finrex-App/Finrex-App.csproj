@@ -20,6 +20,9 @@
         <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.17" />
         <PackageReference Include="Scalar.AspNetCore" Version="2.6.7" />
+        <PackageReference Include="Sentry" Version="5.14.1" />
+        <PackageReference Include="Sentry.AspNetCore" Version="5.14.1" />
+        <PackageReference Include="Sentry.Profiling" Version="5.14.1" />
         <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
@@ -54,6 +57,9 @@
         <Compile Remove="Infra\Api\Controllers\TesteController.cs" />
         <Compile Remove="Application\Services\ObtainingFineData.cs" />
         <Compile Remove="Application\Services\Interface\IObtainingFineData.cs" />
+        <Compile Include="Finrex-App.Tests\Application\Services\FinancialTransactionServiceTests.cs" />
+        <Compile Include="Finrex-App.Tests\Application\Validators\RegisterDTOValidatorTests.cs" />
+        <Compile Include="Finrex-App.Tests\Infra\Api\Controllers\LoginUsersControllerTests.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -64,6 +70,10 @@
     <ItemGroup>
         <EmbeddedResource Remove="Core\**" />
         <EmbeddedResource Remove="Data\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="Finrex-App.Tests\**\*.cs" />
     </ItemGroup>
 
 </Project>

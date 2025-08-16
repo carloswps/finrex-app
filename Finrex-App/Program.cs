@@ -24,6 +24,17 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder( args );
 
+// Sentry config 
+builder.WebHost.UseSentry( o =>
+{
+    o.Dsn = "https://53862f71d78a57b247feb41bb7aaf48c@o4509851494842368.ingest.us.sentry.io/4509851504607232";
+    o.Debug = true;
+    o.SendClientReports = true;
+    o.TracesSampleRate = 1.0;
+    o.ProfilesSampleRate = 1.0;
+} );
+
+
 // Add services to the container.
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions( Options =>
