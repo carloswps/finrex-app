@@ -12,5 +12,5 @@ public class MonthlySpending
     public decimal Utilities { get; set; }
 
     // Navigation Properties
-    public User User { get; set; }
+    public User? User { get; set; }
 }

@@ -1,9 +1,10 @@
 using Finrex_App.Application.DTOs;
 using Finrex_App.Application.Services.Interface;
 using Finrex_App.Application.Validators;
-using Finrex_App.Core.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Finrex_App.Infra.Api.Controllers;
 
 [ApiController]
 [ApiVersion( "1.0" )]
@@ -59,7 +60,7 @@ public class LoginUsersController : ControllerBase
                 return BadRequest( "Não foi possivel realizar o cadastro" );
             }
 
-            return CreatedAtAction( nameof( Register ), new { email = registerDto.email },
+            return CreatedAtAction( nameof( Register ), new { registerDto.email },
                 "Usuario cadastrado com sucesso" );
         } catch ( Exception e )
         {

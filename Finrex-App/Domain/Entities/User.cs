@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 
 namespace Finrex_App.Domain.Entities;
 
@@ -14,8 +13,9 @@ namespace Finrex_App.Domain.Entities;
 public class User
 {
     public int Id { get; set; }
-    public string email { get; set; }
-    public string password { get; set; }
+    public string email { get; set; } = "";
+    public string password { get; set; } = "";
+
 
     // Navigation Properties
     public ICollection<MonthlySpending> MonthlySpendings { get; set; }

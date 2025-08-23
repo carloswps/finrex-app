@@ -1,11 +1,12 @@
 using System.Reflection;
 using System.Text;
+using Finrex_App.Application.DTOs;
 using Finrex_App.Application.JwtGenerate;
 using Finrex_App.Application.Services;
 using Finrex_App.Application.Services.Interface;
 using Finrex_App.Application.Validators;
-using Finrex_App.Core.DTOs;
-using Finrex_App.Core.Example;
+using Finrex_App.Infra.Api.Example;
+using Finrex_App.Infra.Api.Filters;
 using Finrex_App.Infra.Api.Middleware;
 using Finrex_App.Infra.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,8 +19,6 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using FluentValidation;
 using Mapster;
-using MapsterMapper;
-using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder( args );
@@ -61,9 +60,9 @@ builder.Services.AddResponseCaching();
 builder.Services.AddCors( options =>
 {
     options.AddPolicy( "AllowAll",
-        builder =>
+        corsPolicyBuilder =>
         {
-            builder.AllowAnyOrigin()
+            corsPolicyBuilder.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader();
         } );
