@@ -29,6 +29,18 @@ public class ErrorHandlingMiddleware
             await _next( context );
         } catch ( Exception e )
         {
+            SentrySdk.ConfigureScope( scope =>
+            {
+                scope.SetTag( "user", context.User.Identity?.Name );
+
+                scope.SetTag( "method", context.Request.Method );
+                scope.SetTag( "path", context.Request.Path );
+                scope.SetTag( "host", context.Request.Host.Value );
+                scope.SetTag( "protocol", context.Request.Protocol );
+            } );
+
+            SentrySdk.CaptureException( e );
+            
             _logger.LogError( e, "Ocorreu um erro não tratado" );
             await HandleExceptionAsync( context, e );
         }
@@ -80,18 +92,9 @@ public class ErrorHandlingMiddleware
                 Message = "An unexpected error occurred. Please try again later.",
                 DetailedMessage = detailedMessage
             };
-            context.Response.StatusCode = statusCode;
-            return context.Response.WriteAsJsonAsync( response );
         }
 
-        // Treating generic errors
-        context.Response.StatusCode = ( int )HttpStatusCode.InternalServerError;
-        var genericResponse = new
-        {
-            status = context.Response.StatusCode,
-            message = "Ocorreu um erro ao processar a requisição. ",
-            detailedMessage = exception.Message
-        };
-        return context.Response.WriteAsJsonAsync( genericResponse );
+        context.Response.StatusCode = statusCode;
+        return context.Response.WriteAsJsonAsync( response );
     }
 }

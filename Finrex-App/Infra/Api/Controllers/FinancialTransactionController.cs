@@ -17,15 +17,13 @@ public class FinancialTransactionController : ControllerBase
     private readonly MSpendingDTOValidator _dtoMsValidator;
     private readonly IFinancialTransactionService _financialTransactionService;
     private readonly ILogger<FinancialTransactionController> _logger;
-    private readonly ILoginUserServices _loginUserServices;
 
     public FinancialTransactionController(
-        IFinancialTransactionService financialTransactionService, ILoginUserServices loginUserServices,
+        IFinancialTransactionService financialTransactionService, 
         ILogger<FinancialTransactionController> logger, MIncomeDTOValidator dtoValidatorMi,
         MSpendingDTOValidator dtoMsValidator )
     {
         _financialTransactionService = financialTransactionService;
-        _loginUserServices = loginUserServices;
         _logger = logger;
         _dtoMsValidator = dtoMsValidator;
         _dtoMIValidator = dtoValidatorMi;

@@ -12,5 +12,5 @@ public class MonthlyIncome
     public decimal Other { get; set; }
 
     // Navigation Properties
-    public User User { get; set; }
+    public User? User { get; set; }
 }

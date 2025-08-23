@@ -1,5 +1,4 @@
 using Finrex_App.Application.DTOs;
-using Finrex_App.Core.DTOs;
 using Finrex_App.Infra.Data;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;

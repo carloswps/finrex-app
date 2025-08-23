@@ -1,7 +1,6 @@
 using Finrex_App.Application.DTOs;
 using Finrex_App.Application.JwtGenerate;
 using Finrex_App.Application.Services.Interface;
-using Finrex_App.Core.DTOs;
 using Finrex_App.Domain.Entities;
 using Finrex_App.Infra.Data;
 using MapsterMapper;
@@ -34,7 +33,6 @@ public class LoginUserService : ILoginUserServices
                 return false;
             }
 
-            var senhaUserHash = BCrypt.Net.BCrypt.HashPassword( registerDto.password );
             var user = _mapper.Map<User>( registerDto );
 
             user.password = BCrypt.Net.BCrypt.HashPassword( registerDto.password );
