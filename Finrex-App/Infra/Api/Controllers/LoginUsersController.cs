@@ -89,29 +89,4 @@ public class LoginUsersController : ControllerBase
 
         return Ok( new { token } );
     }
-
-    /// <summary>
-    /// Verifica se um usuário existe pelo email informado.
-    /// </summary>
-    /// <param name="email">Email do usuário para verificação.</param>
-    /// <returns>Retorna true se o usuário existe, false caso contrário.</returns>
-    /// <response code="200">Verificação realizada com sucesso.</response>
-    /// <response code="400">Email inválido ou não informado.</response>
-    /// <response code="401">Acesso não autorizado.</response>
-    [Authorize]
-    [HttpGet( "check-user" )]
-    [ProducesResponseType( StatusCodes.Status200OK )]
-    [ProducesResponseType( StatusCodes.Status400BadRequest )]
-    [ProducesResponseType( StatusCodes.Status401Unauthorized )]
-    public async Task<ActionResult<object>> CheckUser( string email )
-    {
-        if ( string.IsNullOrEmpty( email ) )
-        {
-            return BadRequest( new { message = "Email deve ser informado." } );
-        }
-
-        var exists = await _loginUserService.UserExistsAsync( email );
-
-        return Ok( new { exists } );
-    }
 }

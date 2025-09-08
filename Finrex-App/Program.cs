@@ -36,9 +36,9 @@ builder.WebHost.UseSentry( o =>
 
 // Add services to the container.
 builder.Services.AddControllers()
-    .ConfigureApiBehaviorOptions( Options =>
+    .ConfigureApiBehaviorOptions( options =>
     {
-        Options.SuppressModelStateInvalidFilter = true;
+        options.SuppressModelStateInvalidFilter = true;
     } );
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddValidatorsFromAssembly( Assembly.GetExecutingAssembly() );
@@ -123,7 +123,7 @@ builder.Services.AddSwaggerGen( options =>
     // Documentation XML
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine( AppContext.BaseDirectory, xmlFile );
-    options.IncludeXmlComments( xmlPath );
+    options.IncludeXmlComments( xmlPath, true );
 
     var provider = builder.Services.BuildServiceProvider()
         .GetRequiredService<IApiVersionDescriptionProvider>();
@@ -138,7 +138,7 @@ builder.Services.AddSwaggerGen( options =>
                 = "Uma API para gerenciamento de finanças pessoais, permitindo o registro de receitas e despesas.",
             Contact = new OpenApiContact
             {
-                Name = "Seu Nome",
+                Name = "Finrex.APP",
                 Email = "seu-email@example.com",
                 Url = new Uri( "https://seusite.com" )
             },
@@ -202,30 +202,15 @@ if ( app.Environment.IsDevelopment() )
 
         options.RoutePrefix = "swagger";
     } );
-} else
-{
-    app.UseSwaggerUI( options =>
-    {
-        var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-        foreach ( var description in apiVersionDescriptionProvider.ApiVersionDescriptions )
-        {
-            options.SwaggerEndpoint(
-                $"/swagger/{description.GroupName}/swagger.json",
-                $"Finrex API {description.GroupName.ToUpperInvariant()}"
-            );
-        }
-
-        options.RoutePrefix = "swagger";
-    } );
 }
 
 //Não usar Https em desenvolvimento
 //app.UseHttpsRedirection();
 app.UseCors( "AllowAll" );
-app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.MapScalarApiReference();
 app.MapControllers();
 

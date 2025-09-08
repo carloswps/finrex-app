@@ -19,7 +19,7 @@ public class FinancialTransactionController : ControllerBase
     private readonly ILogger<FinancialTransactionController> _logger;
 
     public FinancialTransactionController(
-        IFinancialTransactionService financialTransactionService, 
+        IFinancialTransactionService financialTransactionService,
         ILogger<FinancialTransactionController> logger, MIncomeDTOValidator dtoValidatorMi,
         MSpendingDTOValidator dtoMsValidator )
     {
@@ -38,9 +38,9 @@ public class FinancialTransactionController : ControllerBase
     /// <response code="400">Dados inválidos ou erro ao processar o cadastro.</response>
     /// <response code="401">Usuário não autorizado.</response>
     [HttpPost( "income" )]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType( StatusCodes.Status200OK )]
+    [ProducesResponseType( StatusCodes.Status400BadRequest )]
+    [ProducesResponseType( StatusCodes.Status401Unauthorized )]
     public async Task<IActionResult> RegisterMIncomeAsync( MIncomeDto mIncomeDto )
     {
         try
@@ -96,9 +96,9 @@ public class FinancialTransactionController : ControllerBase
     /// <response code="400">Dados inválidos ou erro ao processar o cadastro.</response>
     /// <response code="401">Usuário não autorizado.</response>
     [HttpPost( "spending" )]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType( StatusCodes.Status200OK )]
+    [ProducesResponseType( StatusCodes.Status400BadRequest )]
+    [ProducesResponseType( StatusCodes.Status401Unauthorized )]
     public async Task<IActionResult> RegisterMSpendingAsync( MSpendingDtO mSpendingDto )
     {
         var userId = User.FindFirst( ClaimTypes.NameIdentifier )?.Value;
