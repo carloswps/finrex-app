@@ -40,7 +40,7 @@ public class ErrorHandlingMiddleware
             } );
 
             SentrySdk.CaptureException( e );
-            
+
             _logger.LogError( e, "Ocorreu um erro não tratado" );
             await HandleExceptionAsync( context, e );
         }
@@ -53,46 +53,56 @@ public class ErrorHandlingMiddleware
 
         int statusCode;
         object response;
+        
 
-        if ( exception is ValidationException validationException )
+    
+        switch ( exception )
         {
-            statusCode = ( int )HttpStatusCode.BadRequest;
+            case ValidationException validationException:
+            {
+                statusCode = ( int )HttpStatusCode.BadRequest;
 
-            var errors = validationException.Errors.Select( e => new
-            {
-                Field = e.PropertyName,
-                Error = e.ErrorMessage
-            } );
+                var errors = validationException.Errors.Select( e => new
+                {
+                    Field = e.PropertyName,
+                    Error = e.ErrorMessage
+                } );
 
-            response = new
+                response = new
+                {
+                    Sucesso = false,
+                    Erros = statusCode,
+                    Message = "Validation error occurred. Please check the fields and try again.",
+                    Errors = errors
+                };
+                break;
+            }
+            case UnauthorizedAccessException:
+                statusCode = ( int )HttpStatusCode.Unauthorized;
+                response = new
+                {
+                    Sucesso = false,
+                    Erros = statusCode,
+                    Message
+                        = "You are not authorized to access this resource. Please check your credentials and try again."
+                };
+                break;
+            default:
             {
-                Sucesso = false,
-                Erros = statusCode,
-                Message = "Validation error occurred. Please check the fields and try again.",
-                Errors = errors
-            };
-        } else if ( exception is UnauthorizedAccessException )
-        {
-            statusCode = ( int )HttpStatusCode.Unauthorized;
-            response = new
-            {
-                Sucesso = false,
-                Erros = statusCode,
-                Message = "You are not authorized to access this resource. Please check your credentials and try again."
-            };
-        } else
-        {
-            statusCode = ( int )HttpStatusCode.InternalServerError;
-            var detailedMessage = exception.Message;
+                statusCode = ( int )HttpStatusCode.InternalServerError;
+                var detailedMessage = exception.Message;
 
-            response = new
-            {
-                Success = false,
-                ErrorCode = statusCode,
-                Message = "An unexpected error occurred. Please try again later.",
-                DetailedMessage = detailedMessage
-            };
+                response = new
+                {
+                    Success = false,
+                    ErrorCode = statusCode,
+                    Message = "An unexpected error occurred. Please try again later.",
+                    DetailedMessage = detailedMessage
+                };
+                break;
+            }
         }
+
 
         context.Response.StatusCode = statusCode;
         return context.Response.WriteAsJsonAsync( response );
