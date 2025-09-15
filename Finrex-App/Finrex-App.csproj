@@ -76,4 +76,49 @@
         <Compile Remove="Finrex-App.Tests\**\*.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\appsettings.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.deps.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests.deps.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\appsettings.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.deps.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests.deps.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\appsettings.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.deps.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests.deps.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\appsettings.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.deps.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests.deps.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\Finrex-App.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\Debug\net8.0\Finrex-App.Tests.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\Finrex-App.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\Debug\net8.0\Finrex-App.Tests.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\Finrex-App.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\bin\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\Debug\net8.0\Finrex-App.Tests.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\Finrex-App.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\Finrex-App.Tests\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\bin\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\obj\Debug\net8.0\Finrex-App.Tests.sourcelink.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\obj\Debug\net8.0\MvcTestingAppManifest.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\obj\Finrex-App.Tests.csproj.nuget.dgspec.json" />
+      <_ContentIncludedByDefault Remove="Finrex-App.Tests\obj\project.assets.json" />
+    </ItemGroup>
+
 </Project>
