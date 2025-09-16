@@ -28,13 +28,7 @@ public class LoginUsersController : ControllerBase
     /// </summary>
     /// <param name="registerDto">Dados necessários para o cadastro do usuário.</param>
     /// <returns>Retorna o status do cadastro.</returns>
-    /// <response code="201">Usuário cadastrado com sucesso.</response>
-    /// <response code="400">Dados inválidos ou erro ao processar o cadastro.</response>
-    /// <response code="500">Erro interno do servidor.</response>
     [HttpPost( "register" )]
-    [ProducesResponseType( StatusCodes.Status201Created )]
-    [ProducesResponseType( StatusCodes.Status400BadRequest )]
-    [ProducesResponseType( StatusCodes.Status500InternalServerError )]
     public async Task<IActionResult> Register( [FromBody] RegisterDTO registerDto )
     {
         try
@@ -70,12 +64,10 @@ public class LoginUsersController : ControllerBase
     }
 
     /// <summary>
-    /// Autentica um usuário e retorna um token JWT.
+    /// Autentica um usuário e retorna um “token” JWT.
     /// </summary>
     /// <param name="loginUserDto">Credenciais do usuário para login.</param>
-    /// <returns>Retorna um token de acesso se a autenticação for bem-sucedida.</returns>
-    /// <response code="200">Login bem-sucedido e token retornado.</response>
-    /// <response code="401">Credenciais inválidas.</response>
+    /// <returns>Retorna um “token” de acesso se a autenticação for bem-sucedida.</returns>
     [HttpPost( "login" )]
     [ProducesResponseType( typeof( string ), StatusCodes.Status200OK )]
     [ProducesResponseType( StatusCodes.Status401Unauthorized )]

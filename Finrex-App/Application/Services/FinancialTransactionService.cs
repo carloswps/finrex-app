@@ -41,10 +41,10 @@ public class FinancialTransactionService : IFinancialTransactionService
     {
         try
         {
-            var mSpendin = _mapper.Map<MonthlySpending>( mSpendingDto );
-            mSpendin.UsuarioId = userId;
+            var mSpending = _mapper.Map<MonthlySpending>( mSpendingDto );
+            mSpending.UsuarioId = userId;
 
-            await _context.MSpending.AddAsync( mSpendin );
+            await _context.MSpending.AddAsync( mSpending );
             await _context.SaveChangesAsync();
             return true;
         } catch ( Exception ex )

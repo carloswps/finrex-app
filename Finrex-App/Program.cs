@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 using Finrex_App.Application.DTOs;
 using Finrex_App.Application.JwtGenerate;
 using Finrex_App.Application.Services;
@@ -36,10 +37,15 @@ builder.WebHost.UseSentry( o =>
 
 // Add services to the container.
 builder.Services.AddControllers()
+    .AddJsonOptions( options =>
+    {
+        options.JsonSerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
+    } )
     .ConfigureApiBehaviorOptions( options =>
     {
         options.SuppressModelStateInvalidFilter = true;
     } );
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddValidatorsFromAssembly( Assembly.GetExecutingAssembly() );
 builder.Services.AddLogging();
@@ -183,10 +189,11 @@ builder.Services.AddDbContext<AppDbContext>( options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
 if ( app.Environment.IsDevelopment() )
 {
-    app.UseDeveloperExceptionPage();
     app.UseSwagger();
 
     var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
@@ -210,7 +217,6 @@ app.UseCors( "AllowAll" );
 app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<ErrorHandlingMiddleware>();
 app.MapScalarApiReference();
 app.MapControllers();
 
