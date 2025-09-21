@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Linq;
+
+namespace Finrex_App.Infra.Api.Filters;
 
 /// <summary>
 /// Operation filter para o Swagger que aplica valores padrão de descrição aos parâmetros
@@ -26,7 +27,7 @@ public class SwaggerDefaultValues : IOperationFilter
 
             if (description != null && parameter.Description == null)
             {
-                parameter.Description = description.ModelMetadata?.Description;
+                parameter.Description = description.ModelMetadata.Description;
             }
         }
     }

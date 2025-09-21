@@ -1,7 +1,6 @@
 using Finrex_App.Application.DTOs;
 using Finrex_App.Application.JwtGenerate;
 using Finrex_App.Application.Services.Interface;
-using Finrex_App.Core.DTOs;
 using Finrex_App.Domain.Entities;
 using Finrex_App.Infra.Data;
 using MapsterMapper;
@@ -29,17 +28,14 @@ public class LoginUserService : ILoginUserServices
     {
         try
         {
-            if ( await _context.Users.AnyAsync( u => u.Email == registerDto.Email ) )
+            if ( await _context.Users.AnyAsync( u => u.email == registerDto.email ) )
             {
                 return false;
             }
 
-            var senhaUserHash = BCrypt.Net.BCrypt.HashPassword( registerDto.Senha );
             var user = _mapper.Map<User>( registerDto );
 
-            user.Senha = BCrypt.Net.BCrypt.HashPassword( registerDto.Senha );
-            user.CriadoEm = DateOnly.MinValue;
-            user.AtualizadoEm = DateOnly.MinValue;
+            user.password = BCrypt.Net.BCrypt.HashPassword( registerDto.password );
 
             _context.Users.Add( user );
             await _context.SaveChangesAsync();
@@ -51,21 +47,20 @@ public class LoginUserService : ILoginUserServices
         }
     }
 
-    public List<User> GetUsers()
+    public async Task<bool> UserExistsAsync( string email )
     {
-        var users = _context.Users.ToList();
-        return _mapper.Map<List<User>>( users );
+        return await _context.Users.AnyAsync( u => u.email == email );
     }
 
 
     public async Task<string?> LoginAsync( LoginUserDto loginUserDto )
     {
         var user = await _context.Users
-            .FirstOrDefaultAsync( u => u.Email == loginUserDto.Email );
+            .FirstOrDefaultAsync( u => u.email == loginUserDto.email );
 
         if ( user == null ) { return null; }
 
-        var senhaOk = BCrypt.Net.BCrypt.Verify( loginUserDto.Senha, user.Senha );
+        var senhaOk = BCrypt.Net.BCrypt.Verify( loginUserDto.password, user.password );
         if ( !senhaOk )
         {
             return null;

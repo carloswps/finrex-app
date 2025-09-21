@@ -1,5 +1,4 @@
 using Finrex_App.Application.DTOs;
-using Finrex_App.Core.DTOs;
 using Finrex_App.Infra.Data;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -13,20 +12,18 @@ public class RegisterDTOValidator : AbstractValidator<RegisterDTO>
     public RegisterDTOValidator( AppDbContext dbContext )
     {
         _dbContext = dbContext;
-        RuleFor( x => x.Email )
+        RuleFor( x => x.email )
             .NotEmpty().WithMessage( "Por favor informe o seu email." )
             .EmailAddress().WithMessage( "Por favor informe um e-mail válido" )
             .MustAsync( BeUniqueEmail ).WithMessage( "Este e-mail já esta cadastrado." );
-        RuleFor( x => x.Senha )
+        RuleFor( x => x.password )
             .NotEmpty().WithMessage( "Por favor informe a sua senha." )
             .Length( 6, 100 ).WithMessage( "A senha deve ter entre 6 e 100 caracteres." );
-        RuleFor( x => x.ConfirmarSenha )
-            .NotEmpty().WithMessage( "Por favor confirme a sua senha." );
     }
 
     private async Task<bool> BeUniqueEmail( string email, CancellationToken cancellationToken )
     {
-        var userExists = await _dbContext.Users.AnyAsync( u => u.Email == email, cancellationToken );
+        var userExists = await _dbContext.Users.AnyAsync( u => u.email == email, cancellationToken );
         return !userExists;
     }
 }

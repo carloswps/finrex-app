@@ -1,8 +1,7 @@
 using Finrex_App.Application.DTOs;
-using Finrex_App.Core.DTOs;
 using Swashbuckle.AspNetCore.Filters;
 
-namespace Finrex_App.Core.Example;
+namespace Finrex_App.Infra.Api.Example;
 
 /// <summary>
 /// Provides example data for the RegisterDTO class.
@@ -23,9 +22,8 @@ public abstract class RegisterDtoExample : IExamplesProvider<RegisterDTO>
     {
         return new RegisterDTO
         {
-            Email = "joaquimmiquelteste@gmail.com",
-            Senha = "Senha123",
-            ConfirmarSenha = "Senha123"
+            email = "joaquimmiquelteste@gmail.com",
+            password = "Senha123"
         };
     }
 }

@@ -1,11 +1,13 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
+using Finrex_App.Application.DTOs;
 using Finrex_App.Application.JwtGenerate;
 using Finrex_App.Application.Services;
 using Finrex_App.Application.Services.Interface;
 using Finrex_App.Application.Validators;
-using Finrex_App.Core.DTOs;
-using Finrex_App.Core.Example;
+using Finrex_App.Infra.Api.Example;
+using Finrex_App.Infra.Api.Filters;
 using Finrex_App.Infra.Api.Middleware;
 using Finrex_App.Infra.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,17 +20,32 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using FluentValidation;
 using Mapster;
-using MapsterMapper;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder( args );
 
+// Sentry config 
+builder.WebHost.UseSentry( o =>
+{
+    o.Dsn = "https://53862f71d78a57b247feb41bb7aaf48c@o4509851494842368.ingest.us.sentry.io/4509851504607232";
+    o.Debug = true;
+    o.SendClientReports = true;
+    o.TracesSampleRate = 1.0;
+    o.ProfilesSampleRate = 1.0;
+} );
+
+
 // Add services to the container.
 builder.Services.AddControllers()
-    .ConfigureApiBehaviorOptions( Options =>
+    .AddJsonOptions( options =>
     {
-        Options.SuppressModelStateInvalidFilter = true;
+        options.JsonSerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
+    } )
+    .ConfigureApiBehaviorOptions( options =>
+    {
+        options.SuppressModelStateInvalidFilter = true;
     } );
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddValidatorsFromAssembly( Assembly.GetExecutingAssembly() );
 builder.Services.AddLogging();
@@ -44,6 +61,18 @@ builder.Services.AddMapster();
 // Cache config
 builder.Services.AddMemoryCache();
 builder.Services.AddResponseCaching();
+
+// Add config CORS
+builder.Services.AddCors( options =>
+{
+    options.AddPolicy( "AllowAll",
+        corsPolicyBuilder =>
+        {
+            corsPolicyBuilder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        } );
+} );
 
 //JWT Config
 var jwtKey = builder.Configuration.GetSection( "Jwt:Key" ).Value ??
@@ -100,7 +129,7 @@ builder.Services.AddSwaggerGen( options =>
     // Documentation XML
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine( AppContext.BaseDirectory, xmlFile );
-    options.IncludeXmlComments( xmlPath );
+    options.IncludeXmlComments( xmlPath, true );
 
     var provider = builder.Services.BuildServiceProvider()
         .GetRequiredService<IApiVersionDescriptionProvider>();
@@ -115,7 +144,7 @@ builder.Services.AddSwaggerGen( options =>
                 = "Uma API para gerenciamento de finanças pessoais, permitindo o registro de receitas e despesas.",
             Contact = new OpenApiContact
             {
-                Name = "Seu Nome",
+                Name = "Finrex.APP",
                 Email = "seu-email@example.com",
                 Url = new Uri( "https://seusite.com" )
             },
@@ -160,10 +189,11 @@ builder.Services.AddDbContext<AppDbContext>( options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
 if ( app.Environment.IsDevelopment() )
 {
-    app.UseDeveloperExceptionPage();
     app.UseSwagger();
 
     var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
@@ -179,27 +209,11 @@ if ( app.Environment.IsDevelopment() )
 
         options.RoutePrefix = "swagger";
     } );
-} else
-{
-    app.UseSwaggerUI( options =>
-    {
-        var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-        foreach ( var description in apiVersionDescriptionProvider.ApiVersionDescriptions )
-        {
-            options.SwaggerEndpoint(
-                $"/swagger/{description.GroupName}/swagger.json",
-                $"Finrex API {description.GroupName.ToUpperInvariant()}"
-            );
-        }
-
-        options.RoutePrefix = "swagger";
-    } );
 }
 
 //Não usar Https em desenvolvimento
 //app.UseHttpsRedirection();
 app.UseCors( "AllowAll" );
-app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
