@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using System.Text.Json.Serialization;
 using Finrex_App.Application.DTOs;
 using Finrex_App.Application.JwtGenerate;
 using Finrex_App.Application.Services;
@@ -36,10 +37,15 @@ builder.WebHost.UseSentry( o =>
 
 // Add services to the container.
 builder.Services.AddControllers()
-    .ConfigureApiBehaviorOptions( Options =>
+    .AddJsonOptions( options =>
     {
-        Options.SuppressModelStateInvalidFilter = true;
+        options.JsonSerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
+    } )
+    .ConfigureApiBehaviorOptions( options =>
+    {
+        options.SuppressModelStateInvalidFilter = true;
     } );
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddValidatorsFromAssembly( Assembly.GetExecutingAssembly() );
 builder.Services.AddLogging();
@@ -123,7 +129,7 @@ builder.Services.AddSwaggerGen( options =>
     // Documentation XML
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine( AppContext.BaseDirectory, xmlFile );
-    options.IncludeXmlComments( xmlPath );
+    options.IncludeXmlComments( xmlPath, true );
 
     var provider = builder.Services.BuildServiceProvider()
         .GetRequiredService<IApiVersionDescriptionProvider>();
@@ -138,7 +144,7 @@ builder.Services.AddSwaggerGen( options =>
                 = "Uma API para gerenciamento de finanças pessoais, permitindo o registro de receitas e despesas.",
             Contact = new OpenApiContact
             {
-                Name = "Seu Nome",
+                Name = "Finrex.APP",
                 Email = "seu-email@example.com",
                 Url = new Uri( "https://seusite.com" )
             },
@@ -183,10 +189,11 @@ builder.Services.AddDbContext<AppDbContext>( options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 // Configure the HTTP request pipeline.
 if ( app.Environment.IsDevelopment() )
 {
-    app.UseDeveloperExceptionPage();
     app.UseSwagger();
 
     var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
@@ -202,27 +209,11 @@ if ( app.Environment.IsDevelopment() )
 
         options.RoutePrefix = "swagger";
     } );
-} else
-{
-    app.UseSwaggerUI( options =>
-    {
-        var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-        foreach ( var description in apiVersionDescriptionProvider.ApiVersionDescriptions )
-        {
-            options.SwaggerEndpoint(
-                $"/swagger/{description.GroupName}/swagger.json",
-                $"Finrex API {description.GroupName.ToUpperInvariant()}"
-            );
-        }
-
-        options.RoutePrefix = "swagger";
-    } );
 }
 
 //Não usar Https em desenvolvimento
 //app.UseHttpsRedirection();
 app.UseCors( "AllowAll" );
-app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();

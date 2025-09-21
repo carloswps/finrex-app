@@ -1,6 +1,10 @@
 using System.Net;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Finrex_App.Infra.Api.Middleware;
 
@@ -24,9 +28,38 @@ public class ErrorHandlingMiddleware
 
     public async Task InvokeAsync( HttpContext context )
     {
+        var originalBodyStream = context.Response.Body;
         try
         {
+            using var responseBody = new MemoryStream();
+            context.Response.Body = responseBody;
+
             await _next( context );
+            if ( context.Response.StatusCode == ( int )HttpStatusCode.Unauthorized ||
+                 context.Response.StatusCode == ( int )HttpStatusCode.Forbidden )
+            {
+                var response = new
+                {
+                    Success = false,
+                    Error = context.Response.StatusCode,
+                    Message
+                        = "Você não possui permissão para acessar este recurso. Verifique suas credenciais do sistema."
+                };
+
+                context.Response.ContentType = "application/json";
+                var jsonResponse = JsonSerializer.Serialize( response );
+
+                responseBody.SetLength( 0 );
+                await responseBody.WriteAsync( Encoding.UTF8.GetBytes( jsonResponse ), 0, jsonResponse.Length );
+                await responseBody.FlushAsync();
+
+                responseBody.Position = 0;
+                await responseBody.CopyToAsync( originalBodyStream );
+            } else
+            {
+                responseBody.Position = 0;
+                await responseBody.CopyToAsync( originalBodyStream );
+            }
         } catch ( Exception e )
         {
             SentrySdk.ConfigureScope( scope =>
@@ -40,9 +73,12 @@ public class ErrorHandlingMiddleware
             } );
 
             SentrySdk.CaptureException( e );
-            
-            _logger.LogError( e, "Ocorreu um erro não tratado" );
+
+            context.Response.Body = originalBodyStream;
             await HandleExceptionAsync( context, e );
+        } finally
+        {
+            context.Response.Body = originalBodyStream;
         }
     }
 
@@ -54,45 +90,45 @@ public class ErrorHandlingMiddleware
         int statusCode;
         object response;
 
-        if ( exception is ValidationException validationException )
+        switch ( exception )
         {
-            statusCode = ( int )HttpStatusCode.BadRequest;
+            case UnauthorizedAccessException:
+            {
+                statusCode = ( int )HttpStatusCode.Unauthorized;
+                response = new
+                {
+                    Success = false,
+                    Error = statusCode,
+                    Message = "Acesso não autorizado. Por favor, faça login novamente."
+                };
+                break;
+            }
+            case ValidationException:
+            {
+                statusCode = ( int )HttpStatusCode.BadRequest;
 
-            var errors = validationException.Errors.Select( e => new
+                response = new
+                {
+                    Success = false,
+                    Error = statusCode,
+                    Message = "Ocorreu um erro de validação. Por favor, verifique os campos e tente novamente."
+                };
+                break;
+            }
+            default:
             {
-                Field = e.PropertyName,
-                Error = e.ErrorMessage
-            } );
-
-            response = new
-            {
-                Sucesso = false,
-                Erros = statusCode,
-                Message = "Validation error occurred. Please check the fields and try again.",
-                Errors = errors
-            };
-        } else if ( exception is UnauthorizedAccessException )
-        {
-            statusCode = ( int )HttpStatusCode.Unauthorized;
-            response = new
-            {
-                Sucesso = false,
-                Erros = statusCode,
-                Message = "You are not authorized to access this resource. Please check your credentials and try again."
-            };
-        } else
-        {
-            statusCode = ( int )HttpStatusCode.InternalServerError;
-            var detailedMessage = exception.Message;
-
-            response = new
-            {
-                Success = false,
-                ErrorCode = statusCode,
-                Message = "An unexpected error occurred. Please try again later.",
-                DetailedMessage = detailedMessage
-            };
+                statusCode = ( int )HttpStatusCode.InternalServerError;
+                
+                response = new
+                {
+                    Success = false,
+                    Error = statusCode,
+                    Message = "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde."
+                };
+                break;
+            }
         }
+
 
         context.Response.StatusCode = statusCode;
         return context.Response.WriteAsJsonAsync( response );
