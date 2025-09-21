@@ -50,7 +50,7 @@ public class ErrorHandlingMiddleware
                 var jsonResponse = JsonSerializer.Serialize( response );
 
                 responseBody.SetLength( 0 );
-                await responseBody.WriteAsync( Encoding.UTF8.GetBytes( jsonResponse ), 0, jsonResponse.Length );
+                await responseBody.WriteAsync( Encoding.UTF8.GetBytes( jsonResponse ).AsMemory() );
                 await responseBody.FlushAsync();
 
                 responseBody.Position = 0;
@@ -118,7 +118,7 @@ public class ErrorHandlingMiddleware
             default:
             {
                 statusCode = ( int )HttpStatusCode.InternalServerError;
-                
+
                 response = new
                 {
                     Success = false,
