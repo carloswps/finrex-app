@@ -1,8 +1,11 @@
 using Finrex_App.Application.DTOs;
 using Finrex_App.Application.Services.Interface;
 using Finrex_App.Application.Validators;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Finrex_App.Infra.Api.Controllers;
 
@@ -80,5 +83,69 @@ public class LoginUsersController : ControllerBase
         }
 
         return Ok( new { token } );
+    }
+
+    [HttpGet("google-login")]
+    public IActionResult GoogleLogin()
+    {
+        var properties = new AuthenticationProperties { RedirectUri = Url.Action(nameof(GoogleSignInCallback)) };
+
+        return Challenge(properties, "Google");
+    }
+
+    [HttpGet("google-signin-callback")][ApiExplorerSettings(IgnoreApi = true)] 
+    public async Task<IActionResult> GoogleSignInCallback()
+    {
+        _logger.LogInformation("Iniciando SignInGoogle");
+        var result = await HttpContext.AuthenticateAsync("Cookies");
+
+        if (!result.Succeeded)
+        {
+            _logger.LogError(result.Failure, "Falha em HttpContext.AuthenticateAsync('Cookies')");
+            return Unauthorized("Falha na autenticação com o Google. Verifique os logs.");
+        }
+        
+        _logger.LogInformation("Autenticação com Cookies bem-sucedida.");
+
+        var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+        var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+        _logger.LogInformation("Email obtido: {Email}, Nome: {Name}", email, name);
+
+        if (string.IsNullOrEmpty(email))
+        {
+            _logger.LogWarning("Não foi possível obter o e-mail do Google.");
+            return BadRequest("Não foi possível obter o e-mail do Google.");
+        }
+
+        try
+        {
+            _logger.LogInformation("Chamando HandleGoogleLoginAsync para o email {Email}", email);
+            var token = await _loginUserService.HandleGoogleLoginAsync(email, name);
+
+            if (token == null)
+            {
+                _logger.LogWarning("HandleGoogleLoginAsync retornou token nulo para o email {Email}", email);
+                return Unauthorized("Não foi possível processar o login com o Google.");
+            }
+
+            _logger.LogInformation("Token gerado com sucesso para o email {Email}", email);
+            return Ok(new { token });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao chamar HandleGoogleLoginAsync para o email {Email}", email);
+            // A exceção será capturada pelo ErrorHandlingMiddleware, mas o log é crucial.
+            throw;
+        }
+    }
+
+    [HttpPost( "logout" )]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync( "Cookies" );
+        return Ok( "Logout realizado com sucesso" );
     }
 }

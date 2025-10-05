@@ -68,4 +68,23 @@ public class LoginUserService : ILoginUserServices
 
         return _tokeService.GenerateToken( user );
     }
+
+    public async Task<string?> HandleGoogleLoginAsync(string email, string? name)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.email == email);
+
+        if (user == null)
+        {
+            user = new User
+            {
+                email = email,
+                password = ""
+            };
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
+
+        var token = _tokeService.GenerateToken(user);
+        return token;
+    }
 }
