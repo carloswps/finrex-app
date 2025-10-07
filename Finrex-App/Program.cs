@@ -6,8 +6,6 @@ using Finrex_App.Application.JwtGenerate;
 using Finrex_App.Application.Services;
 using Finrex_App.Application.Services.Interface;
 using Finrex_App.Application.Validators;
-using Finrex_App.Infra.Api.Example;
-using Finrex_App.Infra.Api.Filters;
 using Finrex_App.Infra.Api.Middleware;
 using Finrex_App.Infra.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,17 +21,6 @@ using Mapster;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder( args );
-
-// Sentry config 
-builder.WebHost.UseSentry( o =>
-{
-    o.Dsn = "https://53862f71d78a57b247feb41bb7aaf48c@o4509851494842368.ingest.us.sentry.io/4509851504607232";
-    o.Debug = true;
-    o.SendClientReports = true;
-    o.TracesSampleRate = 1.0;
-    o.ProfilesSampleRate = 1.0;
-} );
-
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -74,11 +61,11 @@ builder.Services.AddCors( options =>
         } );
 } );
 
-//JWT Config
-var jwtKey = builder.Configuration.GetSection( "Jwt:Key" ).Value ??
-             throw new InvalidOperationException( "Nenhuma chave encontrada" );
-var key = Encoding.UTF8.GetBytes( jwtKey );
-builder.Services.AddAuthentication( JwtBearerDefaults.AuthenticationScheme )
+builder.Services.AddAuthentication( options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    } )
     .AddJwtBearer( options =>
     {
         options.RequireHttpsMetadata = false;
@@ -86,14 +73,22 @@ builder.Services.AddAuthentication( JwtBearerDefaults.AuthenticationScheme )
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes( builder.Configuration[ "Jwt:Key" ] ) ),
+            IssuerSigningKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( builder.Configuration[ "Jwt:Key" ] ) ),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidIssuer = builder.Configuration[ "Jwt:Issuer" ],
             ValidAudience = builder.Configuration[ "Jwt:Audience" ]
         };
+    } )
+    .AddCookie( "Cookies" )
+    .AddGoogle( options =>
+    {
+        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+        options.SignInScheme = "Cookies";
+        options.ClientId = builder.Configuration[ "Authentication:Google:ClientId" ];
+        options.ClientSecret = builder.Configuration[ "Authentication:Google:ClientSecret" ];
+        options.CallbackPath = "/api/v1.0/LoginUsers/google-signin-callback";
     } );
 
 // Config Swagger version and Scalar documentation
@@ -157,12 +152,7 @@ builder.Services.AddSwaggerGen( options =>
 
         options.AddServer( new OpenApiServer { Url = "http://localhost:5023" } );
     }
-
-    options.OperationFilter<SwaggerDefaultValues>();
-
-    options.ExampleFilters();
 } );
-builder.Services.AddSwaggerExamplesFromAssemblyOf<RegisterDtoExample>();
 
 // Setting the API versioning
 builder.Services.AddApiVersioning( options =>
@@ -214,7 +204,7 @@ if ( app.Environment.IsDevelopment() )
 //Não usar Https em desenvolvimento
 //app.UseHttpsRedirection();
 app.UseCors( "AllowAll" );
-app.UseResponseCaching();
+//app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapScalarApiReference();
