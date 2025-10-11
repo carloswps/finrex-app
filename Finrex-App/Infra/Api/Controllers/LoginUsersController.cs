@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Finrex_App.Infra.Api.Controllers;
@@ -17,13 +18,18 @@ public class LoginUsersController : ControllerBase
     private readonly ILoginUserServices _loginUserService;
     private readonly ILogger<LoginUsersController> _logger;
     private readonly RegisterDTOValidator _dtoValidator;
+    private readonly IAntiforgery _antiforgery;
+    private readonly IConfiguration _configuration;
 
     public LoginUsersController(
-        ILoginUserServices loginUserService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator )
+        ILoginUserServices loginUserService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator,
+        IAntiforgery antiforgery, IConfiguration configuration )
     {
         _loginUserService = loginUserService;
         _logger = logger;
         _dtoValidator = dtoValidator;
+        _antiforgery = antiforgery;
+        _configuration = configuration;
     }
 
     [HttpPost( "register" )]
@@ -72,7 +78,15 @@ public class LoginUsersController : ControllerBase
             return Unauthorized( "Credenciais invalidas" );
         }
 
-        return Ok( new { token } );
+        Response.Cookies.Append( "finrex.auth", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddHours( 8 )
+        } );
+
+        return Ok( new { message = "Login realizado com sucesso" } );
     }
 
     [HttpGet( "google-login" )]
@@ -119,19 +133,38 @@ public class LoginUsersController : ControllerBase
             }
 
             _logger.LogInformation( "Token gerado com sucesso para o email {Email}", email );
-            return Ok( new { token } );
+
+            Response.Cookies.Append( "finrex.auth", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddHours( 8 )
+            } );
+            var frontendUrl = _configuration[ "FrontendBaseUrl" ];
+            return Redirect( frontendUrl );
         } catch ( Exception ex )
         {
             _logger.LogError( ex, "Erro ao chamar HandleGoogleLoginAsync para o email {Email}", email );
-            throw;
+            var errorUrl = $"{_configuration[ "FrontendBaseUrl" ]}/login?error=unexpected-error";
+            return Redirect( errorUrl );
         }
     }
 
     [HttpPost( "logout" )]
     [Authorize]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync( "Cookies" );
-        return Ok( "Logout realizado com sucesso" );
+        Response.Cookies.Delete( "finrex.auth" );
+        return Ok( new { message = "Logout realizado com sucesso" } );
+    }
+
+    [HttpGet( "get-csrf-token" )] [ApiExplorerSettings( IgnoreApi = true )]
+    public IActionResult GetCsrfToken()
+    {
+        var tokens = _antiforgery.GetAndStoreTokens( HttpContext );
+        var requestToken = tokens.RequestToken;
+        return Ok( new { csrfToken = requestToken } );
     }
 }

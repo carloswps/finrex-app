@@ -33,6 +33,11 @@ builder.Services.AddControllers()
         options.SuppressModelStateInvalidFilter = true;
     } );
 
+builder.Services.AddAntiforgery( options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+} );
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddValidatorsFromAssembly( Assembly.GetExecutingAssembly() );
 builder.Services.AddLogging();
@@ -55,9 +60,10 @@ builder.Services.AddCors( options =>
     options.AddPolicy( "AllowAll",
         corsPolicyBuilder =>
         {
-            corsPolicyBuilder.AllowAnyOrigin()
+            corsPolicyBuilder.WithOrigins( "http://localhost:3000" )
+                .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowAnyHeader();
+                .AllowCredentials();
         } );
 } );
 
@@ -209,6 +215,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapScalarApiReference();
 app.MapControllers();
+app.UseAntiforgery();
 
 app.MapGet( "/docs", context =>
 {
