@@ -98,7 +98,7 @@ public class LoginUsersController : ControllerBase
         };
 
         // The "prompt" parameter to force account selection even when one account is available.
-        //properties.SetParameter( "prompt", "select_account" );
+        properties.SetParameter( "prompt", "select_account" );
 
         return Challenge( properties, "Google" );
     }
@@ -133,6 +133,7 @@ public class LoginUsersController : ControllerBase
             }
 
             _logger.LogInformation( "Token gerado com sucesso para o email {Email}", email );
+            _logger.LogInformation( "Token: {Token}", token );
 
             Response.Cookies.Append( "finrex.auth", token, new CookieOptions
             {
@@ -141,7 +142,7 @@ public class LoginUsersController : ControllerBase
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTime.UtcNow.AddHours( 8 )
             } );
-            var frontendUrl = _configuration[ "FrontendBaseUrl" ];
+            var frontendUrl = $"{_configuration[ "FrontendBaseUrl" ]}/insights";
             return Redirect( frontendUrl );
         } catch ( Exception ex )
         {
@@ -153,7 +154,6 @@ public class LoginUsersController : ControllerBase
 
     [HttpPost( "logout" )]
     [Authorize]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         Response.Cookies.Delete( "finrex.auth" );
