@@ -35,12 +35,15 @@ public class FinancialTransactionController : ControllerBase
     /// <param name="mIncomeDto">Dados da renda mensal a ser registrada.</param>
     /// <returns>Retorna o status do cadastro da renda.</returns>
     [HttpPost( "income" )]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RegisterMIncomeAsync( MIncomeDto mIncomeDto )
     {
         if ( mIncomeDto == null )
         {
-            return BadRequest( new { Sucesso = false, Mensagem = "O corpo da requisição está vazio ou em um formato inválido." } );
+            return BadRequest( new
+                { Sucesso = false, Mensagem = "O corpo da requisição está vazio ou em um formato inválido." } );
         }
+
         try
         {
             var usuarioId = User.FindFirst( ClaimTypes.NameIdentifier )?.Value;
@@ -89,12 +92,15 @@ public class FinancialTransactionController : ControllerBase
     /// </summary>
     /// <param name="mSpendingDto">Dados da despesa mensal a ser registrada.</param>
     [HttpPost( "spending" )]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RegisterMSpendingAsync( MSpendingDtO mSpendingDto )
     {
         if ( mSpendingDto == null )
         {
-            return BadRequest( new { Sucesso = false, Mensagem = "O corpo da requisição está vazio ou em um formato inválido." } );
+            return BadRequest( new
+                { Sucesso = false, Mensagem = "O corpo da requisição está vazio ou em um formato inválido." } );
         }
+
         var userId = User.FindFirst( ClaimTypes.NameIdentifier )?.Value;
         if ( string.IsNullOrEmpty( userId ) )
         {
