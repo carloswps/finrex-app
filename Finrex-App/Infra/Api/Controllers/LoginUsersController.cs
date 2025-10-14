@@ -133,7 +133,6 @@ public class LoginUsersController : ControllerBase
             }
 
             _logger.LogInformation( "Token gerado com sucesso para o email {Email}", email );
-            _logger.LogInformation( "Token: {Token}", token );
 
             Response.Cookies.Append( "finrex.auth", token, new CookieOptions
             {
