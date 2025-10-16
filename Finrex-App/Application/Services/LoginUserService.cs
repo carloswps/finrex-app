@@ -60,7 +60,7 @@ public class LoginUserService : ILoginUserServices
             return null;
         }
 
-        return _tokeService.GenerateToken( user );
+        return _tokeService.GenerateToken( user, "password" );
     }
 
     public async Task<string?> HandleGoogleLoginAsync( string email, string? name )
@@ -78,7 +78,7 @@ public class LoginUserService : ILoginUserServices
             await _context.SaveChangesAsync();
         }
 
-        var token = _tokeService.GenerateToken( user );
+        var token = _tokeService.GenerateToken( user, "google" );
         return token;
     }
 }

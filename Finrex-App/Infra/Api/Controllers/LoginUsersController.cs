@@ -12,7 +12,7 @@ namespace Finrex_App.Infra.Api.Controllers;
 
 [ApiController]
 [ApiVersion( "1.0" )]
-[Route( "api/v{version:apiVersion}/[controller]" )]
+[Route( "api/v{version:apiVersion}/login-users" )]
 public class LoginUsersController : ControllerBase
 {
     private readonly ILoginUserServices _loginUserService;
@@ -151,12 +151,27 @@ public class LoginUsersController : ControllerBase
         }
     }
 
-    [HttpPost( "logout" )]
+    [HttpDelete( "logout" )]
     [Authorize]
     public async Task<IActionResult> Logout()
     {
-        Response.Cookies.Delete( "finrex.auth" );
-        return Ok( new { message = "Logout realizado com sucesso" } );
+        var providerClaim = User.FindFirst( "auth_provider" );
+
+        if ( providerClaim is null )
+        {
+            return Unauthorized( "Não foi possivel realizar o logout" );
+        }
+
+        switch ( providerClaim.Value )
+        {
+            case "google":
+                await HttpContext.SignOutAsync( "Cookies" );
+                break;
+            case "password":
+                break;
+        }
+
+        return NoContent();
     }
 
     [HttpGet( "get-csrf-token" )] [ApiExplorerSettings( IgnoreApi = true )]
