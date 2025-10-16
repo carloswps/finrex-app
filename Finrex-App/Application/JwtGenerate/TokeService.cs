@@ -24,17 +24,19 @@ public class TokeService
     /// <param name="user">The user for whom the token needs to be generated. This includes user-specific data required for the token creation.</param>
     /// <returns>A JWT as a string that can be used for user authentication and authorization, or null if token generation fails.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the necessary configuration for token generation, such as the signing key, issuer, or audience, is missing or invalid.</exception>
-    public string? GenerateToken( User user )
+    public string? GenerateToken( User user, string authProvider )
     {
         var key = Encoding.UTF8.GetBytes( _configuration[ "Jwt:Key" ] ??
                                           throw new InvalidOperationException( "Nenhuma chave encontrada" ) );
+
         var tokenConfig = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity( new Claim[]
             {
                 new( ClaimTypes.NameIdentifier, user.Id.ToString() ),
                 new( ClaimTypes.Email, user.email ),
-                new( JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString() )
+                new( JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString() ),
+                new( "auth_provider", authProvider )
             } ),
             Expires = DateTime.UtcNow.AddDays( 7 ),
             Issuer = _configuration[ "Jwt:Issuer" ],
