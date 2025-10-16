@@ -153,7 +153,7 @@ public static class ServiceCollectionExtensions
                 options.SignInScheme = "Cookies";
                 options.ClientId = configuration[ "Authentication:Google:ClientId" ];
                 options.ClientSecret = configuration[ "Authentication:Google:ClientSecret" ];
-                options.CallbackPath = "/api/v1.0/LoginUsers/google-signin-callback";
+                options.CallbackPath = "/api/v1.0/login-users/google-signin-callback";
             } );
 
         return services;
