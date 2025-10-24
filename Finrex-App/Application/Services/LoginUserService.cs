@@ -40,6 +40,10 @@ public class LoginUserService : ILoginUserServices
             _context.Users.Add( user );
             await _context.SaveChangesAsync();
             return true;
+        } catch ( DbUpdateException dbEx )
+        {
+            _logger.LogWarning( dbEx, "Erro de banco ao registrar usuário" );
+            return false;
         } catch ( Exception ex )
         {
             _logger.LogError( ex, "Erro ao registrar usuário" );
