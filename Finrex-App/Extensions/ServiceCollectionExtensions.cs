@@ -135,10 +135,17 @@ public static class ServiceCollectionExtensions
             {
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
+                var keyString = configuration[ "Jwt:Key" ];
+                if ( string.IsNullOrWhiteSpace( keyString ) )
+                {
+                    // Fallback development key to avoid null reference on environments without user-secrets
+                    keyString = "finrex-dev-secret-key-change-in-production-0123456789ABCDEF";
+                }
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( configuration[ "Jwt:Key" ] ) ),
+                    IssuerSigningKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( keyString ) ),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,

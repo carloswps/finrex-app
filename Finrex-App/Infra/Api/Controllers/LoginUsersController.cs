@@ -81,8 +81,8 @@ public class LoginUsersController : ControllerBase
         Response.Cookies.Append( "finrex.auth", token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
             Expires = DateTime.UtcNow.AddHours( 8 )
         } );
 
@@ -137,16 +137,28 @@ public class LoginUsersController : ControllerBase
             Response.Cookies.Append( "finrex.auth", token, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
                 Expires = DateTime.UtcNow.AddHours( 8 )
             } );
-            var frontendUrl = $"{_configuration[ "FrontendBaseUrl" ]}/insights";
+            var frontendBase = _configuration[ "FrontendBaseUrl" ];
+            if ( string.IsNullOrWhiteSpace( frontendBase ) )
+            {
+                frontendBase = "http://localhost:3000";
+            }
+
+            var frontendUrl = $"{frontendBase}/insights";
             return Redirect( frontendUrl );
         } catch ( Exception ex )
         {
             _logger.LogError( ex, "Erro ao chamar HandleGoogleLoginAsync para o email {Email}", email );
-            var errorUrl = $"{_configuration[ "FrontendBaseUrl" ]}/login?error=unexpected-error";
+            var frontendBaseErr = _configuration[ "FrontendBaseUrl" ];
+            if ( string.IsNullOrWhiteSpace( frontendBaseErr ) )
+            {
+                frontendBaseErr = "http://localhost:3000";
+            }
+
+            var errorUrl = $"{frontendBaseErr}/login?error=unexpected-error";
             return Redirect( errorUrl );
         }
     }
