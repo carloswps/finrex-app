@@ -39,7 +39,6 @@ public class FinancialTransactionController : ControllerBase
     /// <param name="mIncomeDto">Dados da renda mensal a ser registrada.</param>
     /// <returns>Retorna o status do cadastro da renda.</returns>
     [HttpPost( "incomes" )]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RegisterMIncomeAsync( MIncomeDto mIncomeDto )
     {
         if ( mIncomeDto == null )
@@ -96,7 +95,6 @@ public class FinancialTransactionController : ControllerBase
     /// </summary>
     /// <param name="mSpendingDto">Dados da despesa mensal a ser registrada.</param>
     [HttpPost( "spendings" )]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> RegisterMSpendingAsync( MSpendingDtO mSpendingDto )
     {
         if ( mSpendingDto == null )
