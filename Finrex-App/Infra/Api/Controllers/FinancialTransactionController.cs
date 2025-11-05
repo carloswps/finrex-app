@@ -15,6 +15,15 @@ namespace Finrex_App.Infra.Api.Controllers;
 [Authorize]
 public class FinancialTransactionController : ControllerBase
 {
+    private string? GetUserId()
+    {
+        // Tries common claim names emitted by different identity providers
+        return User.FindFirst( "userId" )?.Value
+               ?? User.FindFirst( ClaimTypes.NameIdentifier )?.Value
+               ?? User.FindFirst( "sub" )?.Value
+               ?? User.FindFirst( "nameid" )?.Value;
+    }
+
     private readonly MIncomeDTOValidator _dtoMiValidator;
     private readonly MSpendingDTOValidator _dtoMsValidator;
     private readonly IFinancialTransactionService _financialTransactionService;
@@ -49,7 +58,7 @@ public class FinancialTransactionController : ControllerBase
 
         try
         {
-            var usuarioId = User.FindFirst( ClaimTypes.NameIdentifier )?.Value;
+            var usuarioId = GetUserId();
             if ( string.IsNullOrEmpty( usuarioId ) )
             {
                 return Unauthorized( "Id do usuário não encontrado no token" );
@@ -103,7 +112,7 @@ public class FinancialTransactionController : ControllerBase
                 { Sucesso = false, Mensagem = "O corpo da requisição está vazio ou em um formato inválido." } );
         }
 
-        var userId = User.FindFirst( ClaimTypes.NameIdentifier )?.Value;
+        var userId = GetUserId();
         if ( string.IsNullOrEmpty( userId ) )
         {
             return Unauthorized( "Id do usuario não encontrado no token" );
@@ -176,7 +185,7 @@ public class FinancialTransactionController : ControllerBase
                     MainIncome = g.Sum( i => i.MainIncome ),
                     Freelance = g.Sum( i => i.Freelance ),
                     Benefits = g.Sum( i => i.Benefits ),
-                    BussinesProfit = g.Sum( i => i.Benefits ),
+                    BusinessProfit = g.Sum( i => i.BusinessProfit ),
                     Other = g.Sum( i => i.Other )
                 } ).ToListAsync();
 

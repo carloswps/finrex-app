@@ -86,7 +86,7 @@ public class LoginUsersController : ControllerBase
             Expires = DateTime.UtcNow.AddHours( 8 )
         } );
 
-        return Ok( new { message = "Login realizado com sucesso" } );
+        return Ok( new { token = token, message = "Login realizado com sucesso" } );
     }
 
     [HttpGet( "google-login" )]
@@ -147,7 +147,7 @@ public class LoginUsersController : ControllerBase
                 frontendBase = "http://localhost:3000";
             }
 
-            var frontendUrl = $"{frontendBase}/insights";
+            var frontendUrl = $"{frontendBase}/insights?token={token}";
             return Redirect( frontendUrl );
         } catch ( Exception ex )
         {
