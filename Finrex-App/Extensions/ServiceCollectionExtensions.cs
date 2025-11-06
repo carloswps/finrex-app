@@ -152,6 +152,18 @@ public static class ServiceCollectionExtensions
                     ValidIssuer = configuration[ "Jwt:Issuer" ],
                     ValidAudience = configuration[ "Jwt:Audience" ]
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        if ( context.Request.Cookies.ContainsKey( "finrex.auth" ) )
+                        {
+                            context.Token = context.Request.Cookies[ "finrex.auth" ];
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             } )
             .AddCookie( "Cookies" )
             .AddGoogle( options =>
