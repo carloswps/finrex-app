@@ -2,6 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finrex-App", "Finrex-App\Finrex-App.csproj", "{2BF5BBD1-7EC1-4670-93F8-37E3AEFCF6F3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{18C22B9F-AA97-45F6-A394-A3D17514484C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7A221097-8361-4646-A30A-458713744094}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finrex-App.Tests", "Finrex-App.Tests\Finrex-App.Tests.csproj", "{AAD4DEAF-0AB6-4F6E-AD2F-D1FD1FE8329B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,7 +18,13 @@ Global
 		{2BF5BBD1-7EC1-4670-93F8-37E3AEFCF6F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BF5BBD1-7EC1-4670-93F8-37E3AEFCF6F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BF5BBD1-7EC1-4670-93F8-37E3AEFCF6F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAD4DEAF-0AB6-4F6E-AD2F-D1FD1FE8329B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAD4DEAF-0AB6-4F6E-AD2F-D1FD1FE8329B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAD4DEAF-0AB6-4F6E-AD2F-D1FD1FE8329B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAD4DEAF-0AB6-4F6E-AD2F-D1FD1FE8329B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{2BF5BBD1-7EC1-4670-93F8-37E3AEFCF6F3} = {18C22B9F-AA97-45F6-A394-A3D17514484C}
+		{AAD4DEAF-0AB6-4F6E-AD2F-D1FD1FE8329B} = {7A221097-8361-4646-A30A-458713744094}
 	EndGlobalSection
 EndGlobal
