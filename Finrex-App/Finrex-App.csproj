@@ -58,9 +58,6 @@
         <Compile Remove="Infra\Api\Controllers\TesteController.cs" />
         <Compile Remove="Application\Services\ObtainingFineData.cs" />
         <Compile Remove="Application\Services\Interface\IObtainingFineData.cs" />
-        <Compile Include="Finrex-App.Tests\Application\Services\FinancialTransactionServiceTests.cs" />
-        <Compile Include="Finrex-App.Tests\Application\Validators\RegisterDTOValidatorTests.cs" />
-        <Compile Include="Finrex-App.Tests\Infra\Api\Controllers\LoginUsersControllerTests.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -75,6 +72,7 @@
 
     <ItemGroup>
         <Compile Remove="Finrex-App.Tests\**\*.cs" />
+        <Compile Remove="Finrex.Tests\**\*.cs" />
     </ItemGroup>
 
     <ItemGroup>
