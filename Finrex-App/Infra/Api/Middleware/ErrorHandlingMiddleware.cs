@@ -62,18 +62,6 @@ public class ErrorHandlingMiddleware
             }
         } catch ( Exception e )
         {
-            SentrySdk.ConfigureScope( scope =>
-            {
-                scope.SetTag( "user", context.User.Identity?.Name );
-
-                scope.SetTag( "method", context.Request.Method );
-                scope.SetTag( "path", context.Request.Path );
-                scope.SetTag( "host", context.Request.Host.Value );
-                scope.SetTag( "protocol", context.Request.Protocol );
-            } );
-
-            SentrySdk.CaptureException( e );
-
             context.Response.Body = originalBodyStream;
             await HandleExceptionAsync( context, e );
         } finally
@@ -118,7 +106,7 @@ public class ErrorHandlingMiddleware
             default:
             {
                 statusCode = ( int )HttpStatusCode.InternalServerError;
-                
+
                 response = new
                 {
                     Success = false,

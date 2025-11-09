@@ -178,12 +178,14 @@ public class LoginUsersController : ControllerBase
         {
             case "google":
                 await HttpContext.SignOutAsync( "Cookies" );
-                break;
-            case "password":
-                break;
-        }
+                return Ok( new { message = "Logout realizado com sucesso!" } );
 
-        return NoContent();
+            case "password":
+                Response.Cookies.Delete( "finrex.auth" );
+                return Ok( new { message = "Logout realizado com sucesso!" } );
+            default:
+                return BadRequest( new { message = "Provedor de autenticação inválido" } );
+        }
     }
 
     [HttpGet( "get-csrf-token" )] [ApiExplorerSettings( IgnoreApi = true )]
