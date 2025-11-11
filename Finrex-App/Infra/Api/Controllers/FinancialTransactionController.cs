@@ -213,4 +213,30 @@ public class FinancialTransactionController : ControllerBase
             );
         }
     }
+
+    [HttpGet( "month-present" )]
+    public async Task<IActionResult> GetCurrentMonthSpendings()
+    {
+        try
+        {
+            var userId = GetUserId();
+            if ( string.IsNullOrEmpty( userId ) )
+            {
+                return Unauthorized( "O usuário não possui as credências necessárias " );
+            }
+
+            var spending
+                = await _financialTransactionService.GetCurrentMonthSpendingsAsync( Convert.ToInt32( userId ) );
+
+            return Ok( new
+            {
+                sucesso = true,
+                Dados = spending
+            } );
+        } catch ( Exception e )
+        {
+            _logger.LogError( e, "Erro ao buscar os gastos do mês atual" );
+            return StatusCode( 500 );
+        }
+    }
 }
