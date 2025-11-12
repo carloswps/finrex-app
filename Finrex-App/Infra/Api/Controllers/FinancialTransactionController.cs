@@ -156,61 +156,47 @@ public class FinancialTransactionController : ControllerBase
     {
         try
         {
-            var incomeQuery = _dbContext.MIncome.AsQueryable();
-            var spendingQuery = _dbContext.MSpending.AsQueryable();
-
-            if ( startDate.HasValue )
+            var userId = GetUserId();
+            if ( string.IsNullOrEmpty( userId ) )
             {
-                var startDateOnly = DateOnly.FromDateTime( startDate.Value );
-                incomeQuery = incomeQuery.Where( i => i.Date >= startDateOnly );
-                spendingQuery = spendingQuery.Where( s => s.Date >= startDateOnly );
+                return Unauthorized( "O usuário não possui as credências necessárias" );
             }
 
-            if ( endDate.HasValue )
-            {
-                var endOfMonth = new DateOnly( endDate.Value.Year, endDate.Value.Month, 1 ).AddMonths( 1 );
-                incomeQuery = incomeQuery.Where( i => i.Date < endOfMonth );
-                spendingQuery = spendingQuery.Where( s => s.Date < endOfMonth );
-            }
+            var summary = await _financialTransactionService.GetSummaryAsync( startDate, endDate,
+                Convert.ToInt32( userId ) );
 
-            var period = startDate.HasValue && endDate.HasValue
-                ? $"{startDate.Value:yyyy-MM} à {endDate.Value:yyyy-MM}"
-                : "Todo periodo";
-
-            var income = await incomeQuery
-                .GroupBy( i => 1 )
-                .Select( g => new IncomeSummaryDto
-                {
-                    Period = period,
-                    MainIncome = g.Sum( i => i.MainIncome ),
-                    Freelance = g.Sum( i => i.Freelance ),
-                    Benefits = g.Sum( i => i.Benefits ),
-                    BusinessProfit = g.Sum( i => i.BusinessProfit ),
-                    Other = g.Sum( i => i.Other )
-                } ).ToListAsync();
-
-            var spending = await spendingQuery
-                .GroupBy( s => 1 )
-                .Select( g => new SpendingSummaryDto
-                {
-                    Period = period,
-                    Transportation = g.Sum( s => s.Transportation ),
-                    Groceries = g.Sum( s => s.Groceries ),
-                    Entertainment = g.Sum( s => s.Entertainment ),
-                    Rent = g.Sum( s => s.Rent ),
-                    Utilities = g.Sum( s => s.Utilities )
-                } ).ToListAsync();
-
-            return Ok( new SummaryResponse
-            {
-                Income = income,
-                Spending = spending
-            } );
+            return Ok( summary );
         } catch ( Exception )
         {
             return StatusCode( StatusCodes.Status500InternalServerError,
                 "Ocorreu um erro ao processar sua solicitação."
             );
+        }
+    }
+
+    [HttpGet( "month-present" )]
+    public async Task<IActionResult> GetCurrentMonthSpendings()
+    {
+        try
+        {
+            var userId = GetUserId();
+            if ( string.IsNullOrEmpty( userId ) )
+            {
+                return Unauthorized( "O usuário não possui as credências necessárias " );
+            }
+
+            var spending
+                = await _financialTransactionService.GetCurrentMonthSpendingsAsync( Convert.ToInt32( userId ) );
+
+            return Ok( new
+            {
+                sucesso = true,
+                Dados = spending
+            } );
+        } catch ( Exception e )
+        {
+            _logger.LogError( e, "Erro ao buscar os gastos do mês atual" );
+            return StatusCode( 500 );
         }
     }
 }
