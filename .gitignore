@@ -1,5 +1,19 @@
-bin/
-obj/
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# NuGet Packages
+*.nupkg
+*.snupkg
 /packages/
+
+# Rider
+.idea/
 riderModule.iml
 /_ReSharper.Caches/
+*.DotSettings.user
+
+# Visual Studio cache/options
+.vs/
