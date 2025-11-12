@@ -8,7 +8,7 @@ public interface IFinancialTransactionService
 
     Task<bool> RegisterMSpendingAsync( MSpendingDtO mSpendingDto, int userId );
 
-    Task<IEnumerable<MoneySavedResult>> GetCurrentMonthSpendingsAsync( int userId );
+    Task<MoneySavedResult> GetCurrentMonthSpendingsAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
 
     Task<SummaryResponse> GetSummaryAsync( DateTime? startDate, DateTime? endDate, int userId );
 

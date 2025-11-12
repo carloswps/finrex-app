@@ -56,31 +56,41 @@ public class FinancialTransactionService : IFinancialTransactionService
         }
     }
 
-    public async Task<IEnumerable<MoneySavedResult>> GetCurrentMonthSpendingsAsync( int userId )
+
+    public async Task<MoneySavedResult> GetCurrentMonthSpendingsAsync(
+        int userId, DateOnly firstMonth, DateOnly lastMonth )
     {
-        var today = DateTime.Today;
+        var firstMonthStart = firstMonth;
+        var firstMonthEnd = firstMonth.AddMonths( 1 ).AddDays( -1 );
 
-        var startOfMonth = new DateOnly( today.Year, today.Month, 1 );
-        var startOfMonthDateTime = startOfMonth.ToDateTime( TimeOnly.MinValue );
-        var startOfNextMotnh = startOfMonthDateTime.AddMonths( 1 );
+        var lastMonthStart = lastMonth;
+        var lastMonthEnd = lastMonth.AddMonths( 1 ).AddDays( -1 );
 
-        var endOfMonthDateTime = startOfNextMotnh.AddDays( -1 );
-        var enOfMonth = DateOnly.FromDateTime( endOfMonthDateTime );
+        var firstMonthSpending = await _context.MSpending
+            .Where( s => s.UsuarioId == userId && s.Date >= firstMonthStart && s.Date <= firstMonthEnd )
+            .SumAsync( s => s.Transportation + s.Groceries + s.Entertainment + s.Rent + s.Utilities );
 
-        var spendings = await _context.MSpending
-            .Where( s => s.UsuarioId == userId && s.Date >= startOfMonth && s.Date <= enOfMonth )
-            .GroupBy( s => true )
-            .Select( s => new MoneySavedResult
-            {
-                Month = startOfMonth,
-                Transportation = s.Sum( s => s.Transportation ),
-                Groceries = s.Sum( s => s.Groceries ),
-                Entertainment = s.Sum( s => s.Entertainment ),
-                Rent = s.Sum( s => s.Rent ),
-                Utilities = s.Sum( s => s.Utilities )
-            } ).ToListAsync();
+        var lastMonthSpending = await _context.MSpending
+            .Where( s => s.UsuarioId == userId && s.Date >= lastMonthStart && s.Date <= lastMonthEnd )
+            .SumAsync( s => s.Transportation + s.Groceries + s.Entertainment + s.Rent + s.Utilities );
 
-        return spendings.Adapt<IEnumerable<MoneySavedResult>>();
+        var differenceInReais = firstMonthSpending - lastMonthSpending;
+
+        decimal differenceInPorcentage = 0;
+        if ( differenceInPorcentage != 0 )
+        {
+            differenceInPorcentage = ( differenceInReais / firstMonthSpending ) * 100;
+        }
+
+        return new MoneySavedResult
+        {
+            FirstMonth = firstMonth,
+            LastMonth = lastMonth,
+            FirstMonthSaveSpending = firstMonthSpending,
+            LastMonthSaveSpending = lastMonthSpending,
+            DifferenceBetweenMonths = differenceInReais,
+            DifferenceInPorcentage = differenceInPorcentage
+        };
     }
 
     public async Task<SummaryResponse> GetSummaryAsync( DateTime? startDate, DateTime? endDate, int userId )

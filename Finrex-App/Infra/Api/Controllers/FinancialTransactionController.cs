@@ -175,24 +175,48 @@ public class FinancialTransactionController : ControllerBase
     }
 
     [HttpGet( "month-present" )]
-    public async Task<IActionResult> GetCurrentMonthSpendings()
+    public async Task<IActionResult> GetCurrentMonthSpendings(
+        [FromQuery] string? firstMonth = null,
+        [FromQuery] string? lastMonth = null
+    )
     {
         try
         {
-            var userId = GetUserId();
-            if ( string.IsNullOrEmpty( userId ) )
+            var userIdString = GetUserId();
+            if ( string.IsNullOrEmpty( userIdString ) || !int.TryParse( userIdString, out var userId ) )
             {
                 return Unauthorized( "O usuário não possui as credências necessárias " );
             }
 
-            var spending
-                = await _financialTransactionService.GetCurrentMonthSpendingsAsync( Convert.ToInt32( userId ) );
 
-            return Ok( new
+            var currentMonth = new DateOnly( DateTime.Today.Year, DateTime.Today.Month, 1 );
+
+            DateOnly comparisonLastMonth;
+            if ( !string.IsNullOrEmpty( lastMonth ) && DateOnly.TryParse( lastMonth + "-01", out var parsedLastMonth ) )
             {
-                sucesso = true,
-                Dados = spending
-            } );
+                comparisonLastMonth = parsedLastMonth;
+            } else
+            {
+                comparisonLastMonth = currentMonth;
+            }
+
+            DateOnly comparisonFirstMonth;
+            if ( !string.IsNullOrEmpty( firstMonth ) &&
+                 DateOnly.TryParse( firstMonth + "-01", out var parsedFirstMonth ) )
+            {
+                comparisonFirstMonth = parsedFirstMonth;
+            } else
+            {
+                comparisonFirstMonth = comparisonLastMonth.AddMonths( -1 );
+            }
+
+            var result = await _financialTransactionService.GetCurrentMonthSpendingsAsync(
+                userId,
+                comparisonFirstMonth,
+                comparisonLastMonth
+            );
+
+            return Ok( result );
         } catch ( Exception e )
         {
             _logger.LogError( e, "Erro ao buscar os gastos do mês atual" );
