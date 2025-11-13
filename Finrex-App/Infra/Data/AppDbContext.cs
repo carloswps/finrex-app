@@ -19,11 +19,13 @@ public class AppDbContext : DbContext
         Users = Set<User>();
         MIncome = Set<MonthlyIncome>();
         MSpending = Set<MonthlySpending>();
+        MFinanceFactorsEnumerable = Set<MFinanceFactors>();
     }
 
     public DbSet<User> Users { get; set; }
     public DbSet<MonthlyIncome> MIncome { get; set; }
     public DbSet<MonthlySpending> MSpending { get; set; }
+    public DbSet<MFinanceFactors> MFinanceFactorsEnumerable { get; set; }
 
     protected override void OnModelCreating( ModelBuilder modelBuilder )
     {
@@ -59,6 +61,19 @@ public class AppDbContext : DbContext
                 .HasConversion(
                     ms => ms.ToDateTime( TimeOnly.MinValue ),
                     ms => DateOnly.FromDateTime( ms )
+                )
+                .HasColumnType( "date" );
+        } );
+
+        modelBuilder.Entity<MFinanceFactors>( entity =>
+        {
+            entity.HasOne( mf => mf.User )
+                .WithMany( mf => mf.MFinanceFactorsCollection )
+                .HasForeignKey( mf => mf.UsuarioId );
+            entity.Property( mf => mf.Date )
+                .HasConversion(
+                    mf => mf.ToDateTime( TimeOnly.MinValue ),
+                    mf => DateOnly.FromDateTime( mf )
                 )
                 .HasColumnType( "date" );
         } );

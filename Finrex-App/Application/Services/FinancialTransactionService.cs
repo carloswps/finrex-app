@@ -77,10 +77,13 @@ public class FinancialTransactionService : IFinancialTransactionService
         var differenceInReais = firstMonthSpending - lastMonthSpending;
 
         decimal differenceInPorcentage = 0;
-        if ( differenceInPorcentage != 0 )
+        if ( firstMonthSpending != 0 )
         {
             differenceInPorcentage = ( differenceInReais / firstMonthSpending ) * 100;
         }
+
+
+        var formattedValue = Math.Round( differenceInPorcentage, 2 );
 
         return new MoneySavedResult
         {
@@ -89,7 +92,7 @@ public class FinancialTransactionService : IFinancialTransactionService
             FirstMonthSaveSpending = firstMonthSpending,
             LastMonthSaveSpending = lastMonthSpending,
             DifferenceBetweenMonths = differenceInReais,
-            DifferenceInPorcentage = differenceInPorcentage
+            DifferenceInPorcentage = formattedValue
         };
     }
 
@@ -148,10 +151,48 @@ public class FinancialTransactionService : IFinancialTransactionService
         return response;
     }
 
-
-    public Task<bool> SavingsGrowth( MIncomeDto mIncomeDto, MSpendingDtO mSpendingDtO, int userId )
+    private async Task<decimal> CalculateNetBalanceForMonth( int userId, DateOnly month )
     {
-        throw new NotImplementedException();
+        var monthStart = month;
+        var monthEnd = month.AddMonths( 1 ).AddDays( -1 );
+
+        var totalIncome = await _context.MIncome
+            .Where( i => i.UsuarioId == userId && i.Date >= monthStart && i.Date <= monthEnd )
+            .SumAsync( i => i.MainIncome + i.Freelance + i.Benefits + i.BusinessProfit + i.Other );
+
+        var totalSpending = await _context.MSpending
+            .Where( s => s.UsuarioId == userId && s.Date >= monthStart && s.Date <= monthEnd )
+            .SumAsync( s => s.Groceries + s.Rent + s.Transportation + s.Utilities + s.Entertainment );
+
+        return totalIncome - totalSpending;
+    }
+
+
+    public async Task<SavingsGrowthResult> GetSavingsGrowthAsync(
+        int userId, DateOnly firstMonth, DateOnly lastMonth )
+    {
+        var firstMonthNetBalance = await CalculateNetBalanceForMonth( userId, firstMonth );
+        var lastMonthNetBalance = await CalculateNetBalanceForMonth( userId, lastMonth );
+
+        var growthInReais = lastMonthNetBalance - firstMonthNetBalance;
+
+        decimal growthInPorcentage = 0;
+        if ( firstMonthNetBalance != 0 )
+        {
+            growthInPorcentage = ( growthInReais / firstMonthNetBalance ) * 100;
+        }
+
+        var formattedValue = Math.Round( growthInPorcentage, 2 );
+
+        return new SavingsGrowthResult
+        {
+            FirstMonth = firstMonth,
+            LastMonth = lastMonth,
+            FirstMonthNetBalance = firstMonthNetBalance,
+            LastMonthNetBalance = lastMonthNetBalance,
+            GrowInReais = growthInReais,
+            GrowInPorcentage = formattedValue
+        };
     }
 
     public Task<bool> NetProfit()

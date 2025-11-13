@@ -202,6 +202,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFinancialTransactionService, FinancialTransactionService>();
         services.AddScoped<ILoginUserServices, LoginUserService>();
         services.AddScoped<TokeService>();
+        services.AddScoped<IFinanceFactorsService, FinanceFactorsService>();
 
         return services;
     }

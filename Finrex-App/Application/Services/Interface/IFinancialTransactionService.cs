@@ -12,7 +12,7 @@ public interface IFinancialTransactionService
 
     Task<SummaryResponse> GetSummaryAsync( DateTime? startDate, DateTime? endDate, int userId );
 
-    Task<bool> SavingsGrowth( MIncomeDto mIncomeDto, MSpendingDtO mSpendingDtO, int userId );
+    Task<SavingsGrowthResult> GetSavingsGrowthAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
 
     Task<bool> NetProfit();
 }
