@@ -14,5 +14,5 @@ public interface IFinancialTransactionService
 
     Task<SavingsGrowthResult> GetSavingsGrowthAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
 
-    Task<bool> NetProfit();
+    Task<NetProfitResult> GetNetProfitGrowthAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
 }

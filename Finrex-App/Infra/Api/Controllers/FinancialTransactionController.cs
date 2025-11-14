@@ -264,4 +264,45 @@ public class FinancialTransactionController : ControllerBase
                 "Ocorreu um erro interno ao processar a solicitação." );
         }
     }
+
+    [HttpGet( "net-profit" )]
+    public async Task<ActionResult<NetProfitResult>> GetNetProfit(
+        [FromQuery] string? firstMonth = null,
+        [FromQuery] string? lastMonth = null
+    )
+    {
+        try
+        {
+            var userIdString = GetUserId();
+            if ( string.IsNullOrEmpty( userIdString ) || !int.TryParse( userIdString, out var userId ) )
+            {
+                return Unauthorized( "O usuário não possui as credenciais necessárias." );
+            }
+
+            var currentMonth = new DateOnly( DateTime.Today.Year, DateTime.Today.Month, 1 );
+
+            var comparisonLastMonth = !string.IsNullOrEmpty( firstMonth ) &&
+                                      DateOnly.TryParse( firstMonth + "-01", out var parsedLastMonth )
+                ? parsedLastMonth
+                : currentMonth;
+
+            var comparisonFirstMonth = !string.IsNullOrEmpty( firstMonth ) &&
+                                       DateOnly.TryParse( firstMonth + "-01", out var parsedFirstMonth )
+                ? parsedFirstMonth
+                : comparisonLastMonth.AddMonths( -1 );
+
+            var result = await _financialTransactionService.GetNetProfitGrowthAsync(
+                userId,
+                comparisonFirstMonth,
+                comparisonLastMonth
+            );
+
+            return Ok( result );
+        } catch ( Exception e )
+        {
+            _logger.LogError( e, "Erro ao buscar o Lucro Líquido." );
+            return StatusCode( StatusCodes.Status500InternalServerError,
+                "Ocorreu um erro interno ao processar a solicitação." );
+        }
+    }
 }

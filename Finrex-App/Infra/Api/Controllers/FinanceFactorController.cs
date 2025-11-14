@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Finrex_App.Application.DTOs;
-using Finrex_App.Application.Services;
 using Finrex_App.Application.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +58,8 @@ public class FinanceFactorController : ControllerBase
 
             return Ok( new
             {
-                message = "Fatores financeiros registrados com sucesso."
+                message = "Fatores financeiros registrados com sucesso.",
+                Dados = input
             } );
         } catch ( Exception e )
         {

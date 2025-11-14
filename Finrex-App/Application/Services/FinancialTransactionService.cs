@@ -1,8 +1,8 @@
 using Finrex_App.Application.DTOs;
+using Finrex_App.Application.Helpers;
 using Finrex_App.Application.Services.Interface;
 using Finrex_App.Domain.Entities;
 using Finrex_App.Infra.Data;
-using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 
@@ -80,10 +80,9 @@ public class FinancialTransactionService : IFinancialTransactionService
         if ( firstMonthSpending != 0 )
         {
             differenceInPorcentage = ( differenceInReais / firstMonthSpending ) * 100;
+            differenceInPorcentage = Math.Round( differenceInPorcentage, 2 );
         }
 
-
-        var formattedValue = Math.Round( differenceInPorcentage, 2 );
 
         return new MoneySavedResult
         {
@@ -92,7 +91,7 @@ public class FinancialTransactionService : IFinancialTransactionService
             FirstMonthSaveSpending = firstMonthSpending,
             LastMonthSaveSpending = lastMonthSpending,
             DifferenceBetweenMonths = differenceInReais,
-            DifferenceInPorcentage = formattedValue
+            DifferenceInPorcentage = differenceInPorcentage
         };
     }
 
@@ -151,28 +150,14 @@ public class FinancialTransactionService : IFinancialTransactionService
         return response;
     }
 
-    private async Task<decimal> CalculateNetBalanceForMonth( int userId, DateOnly month )
-    {
-        var monthStart = month;
-        var monthEnd = month.AddMonths( 1 ).AddDays( -1 );
-
-        var totalIncome = await _context.MIncome
-            .Where( i => i.UsuarioId == userId && i.Date >= monthStart && i.Date <= monthEnd )
-            .SumAsync( i => i.MainIncome + i.Freelance + i.Benefits + i.BusinessProfit + i.Other );
-
-        var totalSpending = await _context.MSpending
-            .Where( s => s.UsuarioId == userId && s.Date >= monthStart && s.Date <= monthEnd )
-            .SumAsync( s => s.Groceries + s.Rent + s.Transportation + s.Utilities + s.Entertainment );
-
-        return totalIncome - totalSpending;
-    }
-
 
     public async Task<SavingsGrowthResult> GetSavingsGrowthAsync(
         int userId, DateOnly firstMonth, DateOnly lastMonth )
     {
-        var firstMonthNetBalance = await CalculateNetBalanceForMonth( userId, firstMonth );
-        var lastMonthNetBalance = await CalculateNetBalanceForMonth( userId, lastMonth );
+        var firstMonthNetBalance
+            = await BalanceHelperForMonth.CalculateNetBalanceForMonth( userId, firstMonth, _context );
+        var lastMonthNetBalance
+            = await BalanceHelperForMonth.CalculateNetBalanceForMonth( userId, lastMonth, _context );
 
         var growthInReais = lastMonthNetBalance - firstMonthNetBalance;
 
@@ -180,9 +165,9 @@ public class FinancialTransactionService : IFinancialTransactionService
         if ( firstMonthNetBalance != 0 )
         {
             growthInPorcentage = ( growthInReais / firstMonthNetBalance ) * 100;
+            growthInPorcentage = Math.Round( growthInPorcentage, 2 );
         }
 
-        var formattedValue = Math.Round( growthInPorcentage, 2 );
 
         return new SavingsGrowthResult
         {
@@ -191,12 +176,34 @@ public class FinancialTransactionService : IFinancialTransactionService
             FirstMonthNetBalance = firstMonthNetBalance,
             LastMonthNetBalance = lastMonthNetBalance,
             GrowInReais = growthInReais,
-            GrowInPorcentage = formattedValue
+            GrowInPorcentage = growthInPorcentage
         };
     }
 
-    public Task<bool> NetProfit()
+    public async Task<NetProfitResult> GetNetProfitGrowthAsync( int userId, DateOnly firstMonth, DateOnly lastMonth )
     {
-        throw new NotImplementedException();
+        var firstMonthNetProfit
+            = await BalanceHelpNetProfitForMonth.CalculateNetProfitForMonth( userId, firstMonth, _context );
+        var lastMonthNetProfit
+            = await BalanceHelpNetProfitForMonth.CalculateNetProfitForMonth( userId, lastMonth, _context );
+
+        var variationInReais = lastMonthNetProfit - firstMonthNetProfit;
+
+        decimal variationInPorcentage = 0;
+        if ( firstMonthNetProfit > 0 )
+        {
+            variationInPorcentage = ( variationInReais / firstMonthNetProfit ) * 100;
+            variationInPorcentage = Math.Round( variationInPorcentage, 2 );
+        }
+
+        return new NetProfitResult
+        {
+            FirstMonth = firstMonth,
+            LastMonth = lastMonth,
+            FirstMonthNetProfit = firstMonthNetProfit,
+            LastMonthNetProfit = lastMonthNetProfit,
+            VariationInReais = variationInReais,
+            VariationInPorcentage = variationInPorcentage
+        };
     }
 }
