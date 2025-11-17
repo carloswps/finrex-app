@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Finrex_App.Application.DTOs;
 using Finrex_App.Application.Helpers;
 using Finrex_App.Application.Services.Interface;
@@ -161,12 +162,22 @@ public class FinancialTransactionService : IFinancialTransactionService
 
         var growthInReais = lastMonthNetBalance - firstMonthNetBalance;
 
-        decimal growthInPorcentage = 0;
-        if ( firstMonthNetBalance != 0 )
+        decimal growthInPercentage = 0;
+        if ( firstMonthNetBalance == 0 )
         {
-            growthInPorcentage = ( growthInReais / firstMonthNetBalance ) * 100;
-            growthInPorcentage = Math.Round( growthInPorcentage, 2 );
+            return new SavingsGrowthResult
+            {
+                FirstMonth = firstMonth,
+                LastMonth = lastMonth,
+                FirstMonthNetBalance = firstMonthNetBalance,
+                LastMonthNetBalance = lastMonthNetBalance,
+                GrowInReais = growthInReais,
+                GrowInPorcentage = growthInPercentage
+            };
         }
+
+        growthInPercentage = ( growthInReais / firstMonthNetBalance ) * 100;
+        growthInPercentage = Math.Round( growthInPercentage, 2 );
 
 
         return new SavingsGrowthResult
@@ -176,7 +187,7 @@ public class FinancialTransactionService : IFinancialTransactionService
             FirstMonthNetBalance = firstMonthNetBalance,
             LastMonthNetBalance = lastMonthNetBalance,
             GrowInReais = growthInReais,
-            GrowInPorcentage = growthInPorcentage
+            GrowInPorcentage = growthInPercentage
         };
     }
 
@@ -189,12 +200,22 @@ public class FinancialTransactionService : IFinancialTransactionService
 
         var variationInReais = lastMonthNetProfit - firstMonthNetProfit;
 
-        decimal variationInPorcentage = 0;
-        if ( firstMonthNetProfit > 0 )
+        decimal variationInPercentage = 0;
+        if ( firstMonthNetProfit <= 0 )
         {
-            variationInPorcentage = ( variationInReais / firstMonthNetProfit ) * 100;
-            variationInPorcentage = Math.Round( variationInPorcentage, 2 );
+            return new NetProfitResult
+            {
+                FirstMonth = firstMonth,
+                LastMonth = lastMonth,
+                FirstMonthNetProfit = firstMonthNetProfit,
+                LastMonthNetProfit = lastMonthNetProfit,
+                VariationInReais = variationInReais,
+                VariationInPorcentage = variationInPercentage
+            };
         }
+
+        variationInPercentage = ( variationInReais / firstMonthNetProfit ) * 100;
+        variationInPercentage = Math.Round( variationInPercentage, 2 );
 
         return new NetProfitResult
         {
@@ -203,7 +224,47 @@ public class FinancialTransactionService : IFinancialTransactionService
             FirstMonthNetProfit = firstMonthNetProfit,
             LastMonthNetProfit = lastMonthNetProfit,
             VariationInReais = variationInReais,
-            VariationInPorcentage = variationInPorcentage
+            VariationInPorcentage = variationInPercentage
+        };
+    }
+
+    public async Task<SpendingComparison> GetSpendingComparisonAsync(
+        int userId, DateOnly firstMonth, DateOnly lastMonth )
+    {
+        var currentMonthSpending
+            = await BalanceHelperForSpendingCompare.CalculateBalanceSpending( userId, firstMonth, _context );
+
+        var lastMonthSpending
+            = await BalanceHelperForSpendingCompare.CalculateBalanceSpending( userId, lastMonth, _context );
+
+        var variationInReais = currentMonthSpending - lastMonthSpending;
+
+        decimal variationInPercentage = 0;
+        if ( lastMonthSpending <= 0 )
+        {
+            return new SpendingComparison
+            {
+                FirstMonth = firstMonth,
+                LastMonth = lastMonth,
+                FirstSpendingMonth = currentMonthSpending,
+                LastSpendingMonth = lastMonthSpending,
+                DifferenceBetweenMonths = variationInReais,
+                DifferenceInPorcentage = variationInPercentage
+            };
+        }
+
+        variationInPercentage = ( variationInReais / lastMonthSpending ) * 100;
+        variationInPercentage = Math.Round( variationInPercentage, 2 );
+
+
+        return new SpendingComparison
+        {
+            FirstMonth = firstMonth,
+            LastMonth = lastMonth,
+            FirstSpendingMonth = currentMonthSpending,
+            LastSpendingMonth = lastMonthSpending,
+            DifferenceBetweenMonths = variationInReais,
+            DifferenceInPorcentage = variationInPercentage
         };
     }
 }
