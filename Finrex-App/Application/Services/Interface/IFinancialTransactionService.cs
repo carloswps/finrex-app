@@ -17,4 +17,6 @@ public interface IFinancialTransactionService
     Task<NetProfitResult> GetNetProfitGrowthAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
 
     Task<SpendingComparison> GetSpendingComparisonAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
+
+    Task<List<TopEarningMonth>> GetTopEarningMonthAsync( int userId );
 }

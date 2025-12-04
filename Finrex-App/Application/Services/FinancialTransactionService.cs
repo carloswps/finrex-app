@@ -267,4 +267,25 @@ public class FinancialTransactionService : IFinancialTransactionService
             DifferenceInPorcentage = variationInPercentage
         };
     }
+
+    public async Task<List<TopEarningMonth>> GetTopEarningMonthAsync( int userId )
+    {
+        var topMonths = await _context.MIncome
+            .Where( i => i.UsuarioId == userId )
+            .GroupBy( i => new
+            {
+                Year = i.Date.Year,
+                Month = i.Date.Month
+            } )
+            .Select( g => new TopEarningMonth
+            {
+                Month = new DateOnly( g.Key.Year, g.Key.Month, 1 ),
+                TotalRevenue = g.Sum( i => i.MainIncome + i.Freelance + i.Benefits + i.BusinessProfit + i.Other )
+            } )
+            .OrderByDescending( t => t.TotalRevenue )
+            .Take( 3 )
+            .ToListAsync();
+
+        return topMonths;
+    }
 }

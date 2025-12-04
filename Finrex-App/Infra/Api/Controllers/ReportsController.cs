@@ -179,8 +179,36 @@ public class ReportsController : Controller
             return Ok( result );
         } catch ( Exception e )
         {
-            Console.WriteLine( e );
-            throw;
+            _logger.LogError( e, "Erro ao buscar os dados Líquido." );
+            return StatusCode( StatusCodes.Status500InternalServerError,
+                "Ocorreu um erro interno ao processar a solicitação." );
+        }
+    }
+
+    [HttpGet( "top-earnings" )]
+    public async Task<ActionResult<List<TopEarningMonth>>> GetTopEarningMonths()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if ( userId == null )
+            {
+                return Unauthorized( "O usuário não possui as credências necessárias" );
+            }
+
+            var result = await _financialTransactionService.GetTopEarningMonthAsync( userId.Value );
+
+            if ( !result.Any() )
+            {
+                return NotFound( "Nenhuma receita encontrada para o usuário." );
+            }
+
+            return Ok( result );
+        } catch ( Exception e )
+        {
+            _logger.LogError( e, "Erro ao buscar os dados Líquido." );
+            return StatusCode( StatusCodes.Status500InternalServerError,
+                "Ocorreu um erro interno ao processar a solicitação." );
         }
     }
 }
