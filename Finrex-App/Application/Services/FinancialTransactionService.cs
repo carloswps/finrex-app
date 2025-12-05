@@ -6,6 +6,7 @@ using Finrex_App.Domain.Entities;
 using Finrex_App.Infra.Data;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace Finrex_App.Application.Services;
 
@@ -287,5 +288,34 @@ public class FinancialTransactionService : IFinancialTransactionService
             .ToListAsync();
 
         return topMonths;
+    }
+
+    public async Task<List<TopSavingsMonth>> GetTopSavingsMonthAsync(int userId)
+    {
+        var allMonthSpending = await _context.MSpending
+            .Where(s => s.UsuarioId == userId)
+            .GroupBy(s => new
+            {
+                Year = s.Date.Year,
+                Month = s.Date.Month
+            })
+            .Select(g => new
+            {
+                Month = new DateOnly(g.Key.Year, g.Key.Month, 1),
+                TotalSpending = g.Sum(s => s.Transportation + s.Entertainment + s.Rent + s.Groceries + s.Utilities)
+            })
+            .OrderBy(m => m.Month)
+            .ToListAsync();
+
+
+        var savingsList = BalanceHelperMonthlySavings.CalculateMonthlySavings(allMonthSpending.Select(x => (x.Month, x.TotalSpending)).ToList());
+
+        var top3 = savingsList
+            .OrderByDescending(s => s.SavingsInReais)
+            .Take(3)
+            .ToList();
+
+        return top3;
+
     }
 }

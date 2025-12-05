@@ -19,4 +19,6 @@ public interface IFinancialTransactionService
     Task<SpendingComparison> GetSpendingComparisonAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
 
     Task<List<TopEarningMonth>> GetTopEarningMonthAsync( int userId );
+
+    Task<List<TopSavingsMonth>> GetTopSavingsMonthAsync(int userId);
 }

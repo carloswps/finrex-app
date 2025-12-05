@@ -211,4 +211,33 @@ public class ReportsController : Controller
                 "Ocorreu um erro interno ao processar a solicitação." );
         }
     }
+
+    [HttpGet("top-savings")]
+    public async Task<ActionResult<List<TopSavingsMonth>>> GetTopSavingsMonths()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized("O usuário não possui as credências necessárias");
+            }
+
+            var result = await _financialTransactionService.GetTopSavingsMonthAsync(userId.Value);
+
+            if (!result.Any())
+            {
+                return NotFound("Nenhuma economia registrada entre meses.");
+            }
+
+            return Ok(result);
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Erro ao buscar os dados Líquido.");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                "Ocorreu um erro interno ao processar a solicitação.");
+        }
+    }
 }
