@@ -2,8 +2,8 @@ namespace Finrex_App.Application.DTOs;
 
 public class SummaryResponse
 {
-    public IEnumerable<IncomeSummaryDto> Income { get; set; }
-    public IEnumerable<SpendingSummaryDto> Spending { get; set; }
+    public IEnumerable<IncomeSummaryDto>? Income { get; set; }
+    public IEnumerable<SpendingSummaryDto>? Spending { get; set; }
 }
 
 public class IncomeSummaryDto
