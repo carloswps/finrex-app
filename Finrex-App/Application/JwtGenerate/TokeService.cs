@@ -38,7 +38,7 @@ public class TokeService
                 new( JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString() ),
                 new( "auth_provider", authProvider )
             } ),
-            Expires = DateTime.UtcNow.AddDays( 7 ),
+            Expires = DateTime.UtcNow.AddHours( 8 ),
             Issuer = _configuration[ "Jwt:Issuer" ],
             Audience = _configuration[ "Jwt:Audience" ],
             SigningCredentials = new SigningCredentials( new SymmetricSecurityKey( key ),

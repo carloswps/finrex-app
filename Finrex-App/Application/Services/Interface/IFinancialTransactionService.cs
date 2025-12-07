@@ -8,11 +8,19 @@ public interface IFinancialTransactionService
 
     Task<bool> RegisterMSpendingAsync( MSpendingDtO mSpendingDto, int userId );
 
-    Task<IEnumerable<MoneySavedResult>> GetCurrentMonthSpendingsAsync( int userId );
+    Task<SpendingVariationResult> GetCurrentMonthSpendingsAsync(int userId, DateOnly firstMonth, DateOnly lastMonth);
 
     Task<SummaryResponse> GetSummaryAsync( DateTime? startDate, DateTime? endDate, int userId );
 
-    Task<bool> SavingsGrowth( MIncomeDto mIncomeDto, MSpendingDtO mSpendingDtO, int userId );
+    Task<SavingsGrowthResult> GetSavingsGrowthAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
 
-    Task<bool> NetProfit();
+    Task<NetProfitResult> GetNetProfitGrowthAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
+
+    Task<SpendingComparison> GetSpendingComparisonAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
+
+    Task<List<TopEarningMonth>> GetTopEarningMonthAsync( int userId );
+
+    Task<List<TopSavingsMonth>> GetTopSavingsMonthAsync(int userId);
+
+    Task<SpendingSummaryDto?> GetCurrentMonthSpendingSummaryAsync(int userId);
 }

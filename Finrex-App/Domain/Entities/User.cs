@@ -1,4 +1,3 @@
-
 namespace Finrex_App.Domain.Entities;
 
 /// <summary>
@@ -18,6 +17,7 @@ public class User
 
 
     // Navigation Properties
-    public ICollection<MonthlySpending> MonthlySpendings { get; set; }
-    public ICollection<MonthlyIncome> MonthlyIncomes { get; set; }
+    public ICollection<MonthlySpending>? MonthlySpendings { get; set; }
+    public ICollection<MonthlyIncome>? MonthlyIncomes { get; set; }
+    public ICollection<MFinanceFactors>? MFinanceFactorsCollection { get; set; }
 }

@@ -150,13 +150,16 @@ public static class ServiceCollectionExtensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidIssuer = configuration[ "Jwt:Issuer" ],
-                    ValidAudience = configuration[ "Jwt:Audience" ]
+                    ValidAudience = configuration[ "Jwt:Audience" ],
+                    ClockSkew = TimeSpan.FromMinutes( 5 )
                 };
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
-                        if ( context.Request.Cookies.ContainsKey( "finrex.auth" ) )
+                        var hasBearer = context.Request.Headers[ "Authorization" ].FirstOrDefault()
+                            ?.StartsWith( "Bearer " ) == true;
+                        if ( !hasBearer && context.Request.Cookies.ContainsKey( "finrex.auth" ) )
                         {
                             context.Token = context.Request.Cookies[ "finrex.auth" ];
                         }
@@ -202,6 +205,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFinancialTransactionService, FinancialTransactionService>();
         services.AddScoped<ILoginUserServices, LoginUserService>();
         services.AddScoped<TokeService>();
+        services.AddScoped<IFinanceFactorsService, FinanceFactorsService>();
 
         return services;
     }
@@ -233,7 +237,6 @@ public static class ServiceCollectionExtensions
         app.UseAuthorization();
         app.MapControllers();
         //app.MapScalarApiReference(); 
-        app.UseAntiforgery();
 
         app.MapGet( "/docs", context =>
         {

@@ -33,6 +33,9 @@ public class LoginUsersController : ControllerBase
     }
 
     [HttpPost( "register" )]
+
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Register( [FromBody] RegisterDTO registerDto )
     {
         try
@@ -68,7 +71,7 @@ public class LoginUsersController : ControllerBase
     }
 
     [HttpPost( "login" )]
-    [ProducesResponseType( typeof( string ), StatusCodes.Status200OK )]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType( StatusCodes.Status401Unauthorized )]
     public async Task<IActionResult> Login( [FromBody] LoginUserDto loginUserDto )
     {
@@ -90,6 +93,7 @@ public class LoginUsersController : ControllerBase
     }
 
     [HttpGet( "google-login" )]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult GoogleLogin()
     {
         var properties = new AuthenticationProperties
@@ -165,6 +169,10 @@ public class LoginUsersController : ControllerBase
 
     [HttpDelete( "logout" )]
     [Authorize]
+
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Logout()
     {
         var providerClaim = User.FindFirst( "auth_provider" );
