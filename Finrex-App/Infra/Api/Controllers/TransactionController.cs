@@ -46,6 +46,8 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost( "incomes" )]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RegisterIncome( [FromBody] MIncomeDto mIncomeDto )
     {
         if ( mIncomeDto == null )
@@ -88,6 +90,8 @@ public class TransactionController : ControllerBase
 
 
     [HttpPost( "spendings" )]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RegisterSpending( [FromBody] MSpendingDtO mSpendingDto )
     {
         if ( mSpendingDto == null )

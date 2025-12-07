@@ -32,6 +32,8 @@ public class FinanceFactorController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpsertFinanceFactors( [FromBody] FinanceFactorDto input )
     {
         if ( input == null )

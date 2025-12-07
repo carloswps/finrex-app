@@ -1,6 +1,6 @@
 namespace Finrex_App.Application.DTOs;
 
-public class MoneySavedResult
+public class SpendingVariationResult
 {
     public DateOnly FirstMonth { get; set; }
     public DateOnly LastMonth { get; set; }

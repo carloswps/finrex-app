@@ -8,7 +8,7 @@ public interface IFinancialTransactionService
 
     Task<bool> RegisterMSpendingAsync( MSpendingDtO mSpendingDto, int userId );
 
-    Task<MoneySavedResult> GetCurrentMonthSpendingsAsync( int userId, DateOnly firstMonth, DateOnly lastMonth );
+    Task<SpendingVariationResult> GetCurrentMonthSpendingsAsync(int userId, DateOnly firstMonth, DateOnly lastMonth);
 
     Task<SummaryResponse> GetSummaryAsync( DateTime? startDate, DateTime? endDate, int userId );
 
@@ -21,4 +21,6 @@ public interface IFinancialTransactionService
     Task<List<TopEarningMonth>> GetTopEarningMonthAsync( int userId );
 
     Task<List<TopSavingsMonth>> GetTopSavingsMonthAsync(int userId);
+
+    Task<SpendingSummaryDto?> GetCurrentMonthSpendingSummaryAsync(int userId);
 }

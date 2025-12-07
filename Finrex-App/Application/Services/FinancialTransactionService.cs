@@ -59,7 +59,7 @@ public class FinancialTransactionService : IFinancialTransactionService
     }
 
 
-    public async Task<MoneySavedResult> GetCurrentMonthSpendingsAsync(
+    public async Task<SpendingVariationResult> GetCurrentMonthSpendingsAsync(
         int userId, DateOnly firstMonth, DateOnly lastMonth )
     {
         var firstMonthStart = firstMonth;
@@ -76,7 +76,7 @@ public class FinancialTransactionService : IFinancialTransactionService
             .Where( s => s.UsuarioId == userId && s.Date >= lastMonthStart && s.Date <= lastMonthEnd )
             .SumAsync( s => s.Transportation + s.Groceries + s.Entertainment + s.Rent + s.Utilities );
 
-        var differenceInReais = firstMonthSpending - lastMonthSpending;
+        var differenceInReais = lastMonthSpending - firstMonthSpending;
 
         decimal differenceInPorcentage = 0;
         if ( firstMonthSpending != 0 )
@@ -86,7 +86,7 @@ public class FinancialTransactionService : IFinancialTransactionService
         }
 
 
-        return new MoneySavedResult
+        return new SpendingVariationResult
         {
             FirstMonth = firstMonth,
             LastMonth = lastMonth,
@@ -317,5 +317,33 @@ public class FinancialTransactionService : IFinancialTransactionService
 
         return top3;
 
+    }
+
+    public async Task<SpendingSummaryDto?> GetCurrentMonthSpendingSummaryAsync(int userId)
+    {
+        var today = DateTime.Today;
+        var startOfMonth = new DateOnly(today.Year, today.Month, 1);
+        var endofMonth = startOfMonth.AddDays(1).AddDays(-1);
+
+        var spendingSummary = await _context.MSpending
+            .Where(s => s.UsuarioId == userId && s.Date >= startOfMonth && s.Date <= endofMonth)
+            .GroupBy(s => 1)
+            .Select(g => new SpendingSummaryDto
+            {
+                Period = startOfMonth.ToString("yyy-MM"),
+                Entertainment = g.Sum(s => s.Entertainment),
+                Groceries = g.Sum(s => s.Groceries),
+                Rent = g.Sum(s => s.Rent),
+                Transportation = g.Sum(s => s.Transportation),
+                Utilities = g.Sum(s => s.Utilities)
+            })
+            .FirstOrDefaultAsync();
+
+        if (spendingSummary == null)
+        {
+            return new SpendingSummaryDto { Period = startOfMonth.ToString("yyy-MM") };
+        }
+
+        return spendingSummary;
     }
 }

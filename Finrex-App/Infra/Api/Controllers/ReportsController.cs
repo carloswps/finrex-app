@@ -55,6 +55,9 @@ public class ReportsController : Controller
     }
 
     [HttpGet( "summary" )]
+    [ProducesResponseType(typeof(SummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SummaryResponse>> GetSummary(
         [FromQuery] DateTime? startDate = null,
         [FromQuery] DateTime? endDate = null )
@@ -79,6 +82,9 @@ public class ReportsController : Controller
     }
 
     [HttpGet( "savings-growth" )]
+    [ProducesResponseType(typeof(SavingsGrowthResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SavingsGrowthResult>> GetSavingsGrowth(
         [FromQuery] string? firstMonth = null,
         [FromQuery] string? lastMonth = null
@@ -105,6 +111,9 @@ public class ReportsController : Controller
     }
 
     [HttpGet( "net-profit-growth" )]
+    [ProducesResponseType(typeof(NetProfitResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<NetProfitResult>> GetNetProfit(
         [FromQuery] string? firstMonth = null,
         [FromQuery] string? lastMonth = null
@@ -132,6 +141,9 @@ public class ReportsController : Controller
     }
 
     [HttpGet( "spending-comparison" )]
+    [ProducesResponseType(typeof(SpendingComparison), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SpendingComparison>> GetSpendingComparison(
         [FromQuery] string? firstMonth = null,
         [FromQuery] string? lastMonth = null
@@ -158,6 +170,9 @@ public class ReportsController : Controller
     }
 
     [HttpGet( "month-present" )]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCurrentMonthSpendings(
         [FromQuery] string? firstMonth = null,
         [FromQuery] string? lastMonth = null
@@ -186,6 +201,9 @@ public class ReportsController : Controller
     }
 
     [HttpGet( "top-earnings" )]
+    [ProducesResponseType(typeof(TopEarningMonth), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<TopEarningMonth>>> GetTopEarningMonths()
     {
         try
@@ -213,6 +231,9 @@ public class ReportsController : Controller
     }
 
     [HttpGet("top-savings")]
+    [ProducesResponseType(typeof(TopSavingsMonth), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<List<TopSavingsMonth>>> GetTopSavingsMonths()
     {
         try
@@ -238,6 +259,37 @@ public class ReportsController : Controller
             _logger.LogError(e, "Erro ao buscar os dados Líquido.");
             return StatusCode(StatusCodes.Status500InternalServerError,
                 "Ocorreu um erro interno ao processar a solicitação.");
+        }
+    }
+
+    [HttpGet("current-month-spenging")]
+    [ProducesResponseType(typeof(SpendingSummaryDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<SpendingSummaryDto>> GetCurrentMonthSpendingsReport()
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return Unauthorized("O usuário não possui as credências necessárias");
+            }
+
+            var result = await _financialTransactionService.GetCurrentMonthSpendingSummaryAsync(userId.Value);
+
+            if (result == null)
+            {
+                return NotFound("Nenhum gasto encontrado para o mês atual.");
+            }
+
+            return Ok(result);
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Erro ao buscar os gastos do mês atual.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um erro interno ao processar a solicitação.");
         }
     }
 }
