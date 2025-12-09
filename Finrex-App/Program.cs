@@ -14,11 +14,6 @@ builder.Services
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateAsyncScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
 
 app.ConfigureMiddleware( app.Environment );
 app.Run();
