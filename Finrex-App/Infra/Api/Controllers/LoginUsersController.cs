@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using FluentValidation;
 
 namespace Finrex_App.Infra.Api.Controllers;
 
 [ApiController]
-[ApiVersion( "1.0" )]
-[Route( "api/v{version:apiVersion}/login-users" )]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/login-users")]
 public class LoginUsersController : ControllerBase
 {
     private readonly ILoginUserServices _loginUserService;
@@ -23,7 +23,7 @@ public class LoginUsersController : ControllerBase
 
     public LoginUsersController(
         ILoginUserServices loginUserService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator,
-        IAntiforgery antiforgery, IConfiguration configuration )
+        IAntiforgery antiforgery, IConfiguration configuration)
     {
         _loginUserService = loginUserService;
         _logger = logger;
@@ -32,175 +32,118 @@ public class LoginUsersController : ControllerBase
         _configuration = configuration;
     }
 
-    [HttpPost( "register" )]
-
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Register( [FromBody] RegisterDTO registerDto )
+    private void SetAuthCookie(string token)
     {
-        try
-        {
-            var validationResult = await _dtoValidator.ValidateAsync( registerDto );
-            if ( !validationResult.IsValid )
-            {
-                var errors = validationResult.Errors.Select( e => new
-                {
-                    Campo = e.PropertyName,
-                    Mensagem = e.ErrorMessage
-                } );
-                return BadRequest( new
-                {
-                    Sucesso = false,
-                    Erros = errors
-                } );
-            }
-
-            var result = await _loginUserService.RegisterAsync( registerDto );
-            if ( !result )
-            {
-                return BadRequest( "Não foi possivel realizar o cadastro" );
-            }
-
-            return CreatedAtAction( nameof( Register ), new { registerDto.email },
-                "Usuario cadastrado com sucesso" );
-        } catch ( Exception e )
-        {
-            _logger.LogError( e, "Erro ao realizar cadastro" );
-            throw;
-        }
-    }
-
-    [HttpPost( "login" )]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType( StatusCodes.Status401Unauthorized )]
-    public async Task<IActionResult> Login( [FromBody] LoginUserDto loginUserDto )
-    {
-        var token = await _loginUserService.LoginAsync( loginUserDto );
-        if ( token == null )
-        {
-            return Unauthorized( "Credenciais invalidas" );
-        }
-
-        Response.Cookies.Append( "finrex.auth", token, new CookieOptions
+        var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
             Secure = Request.IsHttps,
             SameSite = SameSiteMode.Lax,
-            Expires = DateTime.UtcNow.AddHours( 8 )
-        } );
-
-        return Ok( new { token = token, message = "Login realizado com sucesso" } );
+            Expires = DateTime.UtcNow.AddHours(8)
+        };
+        Response.Cookies.Append("finrex.auth", token, cookieOptions);
     }
 
-    [HttpGet( "google-login" )]
+    [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
+    {
+        await _dtoValidator.ValidateAsync(registerDto);
+
+        var result = await _loginUserService.RegisterAsync(registerDto);
+        if (!result)
+        {
+            var response = ApiResponse<string>.CreateFailure("Não foi possivel realizar o cadastro");
+            return BadRequest(response);
+        }
+
+        var successResponse = ApiResponse<object>.CreateSuccess(new { registerDto.email },
+            "Usuario cadastrado com sucesso");
+        return Ok(successResponse);
+    }
+
+    [HttpPost("login")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login([FromBody] LoginUserDto loginUserDto)
+    {
+        var token = await _loginUserService.LoginAsync(loginUserDto);
+        if (token == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
+        SetAuthCookie(token);
+        var successResponse =
+            ApiResponse<object>.CreateSuccess(new { token = token, message = "Login realizado com sucesso" });
+        return Ok(successResponse);
+    }
+
+    [HttpGet("google-login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public IActionResult GoogleLogin()
     {
         var properties = new AuthenticationProperties
         {
-            RedirectUri = Url.Action( nameof( GoogleSignInCallback ) )
+            RedirectUri = Url.Action(nameof(GoogleSignInCallback))
         };
 
         // The "prompt" parameter to force account selection even when one account is available.
-        properties.SetParameter( "prompt", "select_account" );
+        properties.SetParameter("prompt", "select_account");
 
-        return Challenge( properties, "Google" );
+        return Challenge(properties, "Google");
     }
 
-    [HttpGet( "google-signin-callback" )] [ApiExplorerSettings( IgnoreApi = true )]
+    [HttpGet("google-signin-callback")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> GoogleSignInCallback()
     {
-        var result = await HttpContext.AuthenticateAsync( "Cookies" );
+        var result = await HttpContext.AuthenticateAsync("Cookies");
 
-        if ( !result.Succeeded )
-        {
-            return Unauthorized( "Falha na autenticação com o Google. Verifique os logs." );
-        }
+        if (!result.Succeeded) return Unauthorized("Falha na autenticação com o Google. Verifique os logs.");
 
         var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
-        var email = claims?.FirstOrDefault( c => c.Type == ClaimTypes.Email )?.Value;
-        var name = claims?.FirstOrDefault( c => c.Type == ClaimTypes.Name )?.Value;
+        var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-        _logger.LogInformation( "Email obtido: {Email}, Nome: {Name}", email, name );
+        _logger.LogInformation("Email obtido: {Email}, Nome: {Name}", email, name);
 
-        if ( string.IsNullOrEmpty( email ) )
-        {
-            return BadRequest( "Não foi possível obter o e-mail do Google." );
-        }
+        if (string.IsNullOrEmpty(email)) return BadRequest("Não foi possível obter o e-mail do Google.");
 
-        try
-        {
-            var token = await _loginUserService.HandleGoogleLoginAsync( email, name );
-            if ( token == null )
-            {
-                return Unauthorized( "Não foi possível processar o login com o Google." );
-            }
 
-            _logger.LogInformation( "Token gerado com sucesso para o email {Email}", email );
+        var token = await _loginUserService.HandleGoogleLoginAsync(email, name);
+        if (token == null) return Unauthorized("Não foi possível processar o login com o Google.");
 
-            Response.Cookies.Append( "finrex.auth", token, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = Request.IsHttps,
-                SameSite = SameSiteMode.Lax,
-                Expires = DateTime.UtcNow.AddHours( 8 )
-            } );
-            var frontendBase = _configuration[ "FrontendBaseUrl" ];
-            if ( string.IsNullOrWhiteSpace( frontendBase ) )
-            {
-                frontendBase = "http://localhost:3000";
-            }
+        _logger.LogInformation("Token gerado com sucesso para o email {Email}", email);
+        SetAuthCookie(token);
+        var frontendBase = _configuration["FrontendBaseUrl"];
+        if (string.IsNullOrWhiteSpace(frontendBase)) frontendBase = "http://localhost:3000";
 
-            var frontendUrl = $"{frontendBase}/insights?token={token}";
-            return Redirect( frontendUrl );
-        } catch ( Exception ex )
-        {
-            _logger.LogError( ex, "Erro ao chamar HandleGoogleLoginAsync para o email {Email}", email );
-            var frontendBaseErr = _configuration[ "FrontendBaseUrl" ];
-            if ( string.IsNullOrWhiteSpace( frontendBaseErr ) )
-            {
-                frontendBaseErr = "http://localhost:3000";
-            }
-
-            var errorUrl = $"{frontendBaseErr}/login?error=unexpected-error";
-            return Redirect( errorUrl );
-        }
+        var frontendUrl = $"{frontendBase}/insights?token={token}";
+        return Redirect(frontendUrl);
     }
 
-    [HttpDelete( "logout" )]
+    [HttpDelete("logout")]
     [Authorize]
-
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Logout()
     {
-        var providerClaim = User.FindFirst( "auth_provider" );
-
-        if ( providerClaim is null )
-        {
-            return Unauthorized( "Não foi possivel realizar o logout" );
-        }
-
-        switch ( providerClaim.Value )
-        {
-            case "google":
-                await HttpContext.SignOutAsync( "Cookies" );
-                return Ok( new { message = "Logout realizado com sucesso!" } );
-
-            case "password":
-                Response.Cookies.Delete( "finrex.auth" );
-                return Ok( new { message = "Logout realizado com sucesso!" } );
-            default:
-                return BadRequest( new { message = "Provedor de autenticação inválido" } );
-        }
+        var providerClaim = User.FindFirst("auth_provider")?.Value;
+        if (providerClaim == "google") await HttpContext.SignOutAsync("Google");
+        Response.Cookies.Delete("finrex.auth");
+        return Ok(new { message = "Logout realizado com sucesso" });
     }
 
-    [HttpGet( "get-csrf-token" )] [ApiExplorerSettings( IgnoreApi = true )]
+    [HttpGet("get-csrf-token")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public IActionResult GetCsrfToken()
     {
-        var tokens = _antiforgery.GetAndStoreTokens( HttpContext );
+        var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
         var requestToken = tokens.RequestToken;
-        return Ok( new { csrfToken = requestToken } );
+        return Ok(new { csrfToken = requestToken });
     }
 }

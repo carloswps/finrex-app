@@ -14,7 +14,7 @@ namespace Finrex_App.Infra.Data;
 /// </remarks>
 public class AppDbContext : DbContext
 {
-    public AppDbContext( DbContextOptions<AppDbContext> options ) : base( options )
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
         Users = Set<User>();
         MIncome = Set<MonthlyIncome>();
@@ -27,55 +27,55 @@ public class AppDbContext : DbContext
     public DbSet<MonthlySpending> MSpending { get; set; }
     public DbSet<MFinanceFactors> MFinanceFactorsEnumerable { get; set; }
 
-    protected override void OnModelCreating( ModelBuilder modelBuilder )
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating( modelBuilder );
+        base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<User>( entity =>
+        modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey( e => e.Id );
-            entity.Property( e => e.email ).IsRequired().HasMaxLength( 100 );
-            entity.HasIndex( e => e.email ).IsUnique();
-            entity.Property( e => e.password ).IsRequired();
-        } );
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.email).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.email).IsUnique();
+            entity.Property(e => e.password).IsRequired();
+        });
 
-        modelBuilder.Entity<MonthlyIncome>( entity =>
+        modelBuilder.Entity<MonthlyIncome>(entity =>
         {
-            entity.HasOne( mi => mi.User )
-                .WithMany( u => u.MonthlyIncomes )
-                .HasForeignKey( mi => mi.UsuarioId );
-            entity.Property( mi => mi.Date )
+            entity.HasOne(mi => mi.User)
+                .WithMany(u => u.MonthlyIncomes)
+                .HasForeignKey(mi => mi.UsuarioId);
+            entity.Property(mi => mi.Date)
                 .HasConversion(
-                    mi => mi.ToDateTime( TimeOnly.MinValue ),
-                    mi => DateOnly.FromDateTime( mi )
+                    mi => mi.ToDateTime(TimeOnly.MinValue),
+                    mi => DateOnly.FromDateTime(mi)
                 )
-                .HasColumnType( "date" );
-        } );
+                .HasColumnType("date");
+        });
 
-        modelBuilder.Entity<MonthlySpending>( entity =>
+        modelBuilder.Entity<MonthlySpending>(entity =>
         {
-            entity.HasOne( mi => mi.User )
-                .WithMany( u => u.MonthlySpendings )
-                .HasForeignKey( mi => mi.UsuarioId );
-            entity.Property( ms => ms.Date )
+            entity.HasOne(mi => mi.User)
+                .WithMany(u => u.MonthlySpendings)
+                .HasForeignKey(mi => mi.UsuarioId);
+            entity.Property(ms => ms.Date)
                 .HasConversion(
-                    ms => ms.ToDateTime( TimeOnly.MinValue ),
-                    ms => DateOnly.FromDateTime( ms )
+                    ms => ms.ToDateTime(TimeOnly.MinValue),
+                    ms => DateOnly.FromDateTime(ms)
                 )
-                .HasColumnType( "date" );
-        } );
+                .HasColumnType("date");
+        });
 
-        modelBuilder.Entity<MFinanceFactors>( entity =>
+        modelBuilder.Entity<MFinanceFactors>(entity =>
         {
-            entity.HasOne( mf => mf.User )
-                .WithMany( mf => mf.MFinanceFactorsCollection )
-                .HasForeignKey( mf => mf.UsuarioId );
-            entity.Property( mf => mf.Date )
+            entity.HasOne(mf => mf.User)
+                .WithMany(mf => mf.MFinanceFactorsCollection)
+                .HasForeignKey(mf => mf.UsuarioId);
+            entity.Property(mf => mf.Date)
                 .HasConversion(
-                    mf => mf.ToDateTime( TimeOnly.MinValue ),
-                    mf => DateOnly.FromDateTime( mf )
+                    mf => mf.ToDateTime(TimeOnly.MinValue),
+                    mf => DateOnly.FromDateTime(mf)
                 )
-                .HasColumnType( "date" );
-        } );
+                .HasColumnType("date");
+        });
     }
 }
