@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Finrex_App.Infra.Api.Controllers;
 
+/// <inheritdoc />
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/reports")]
@@ -47,9 +48,16 @@ public class ReportsController(
         [FromQuery] DateTime? endDate = null)
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
         var summary = await _financialTransactionService.GetSummaryAsync(startDate, endDate, userId.Value);
-        return Ok(summary);
+
+        var successResponse = ApiResponse<SummaryResponse>.CreateSuccess(summary);
+        return Ok(successResponse);
     }
 
     [HttpGet("savings-growth")]
@@ -150,9 +158,20 @@ public class ReportsController(
     public async Task<ActionResult<SpendingSummaryDto>> GetCurrentMonthSpendingsReport()
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
         var result = await _financialTransactionService.GetCurrentMonthSpendingSummaryAsync(userId.Value);
-        if (result == null) return NotFound("Nenhum gasto encontrado para o mês atual.");
-        return Ok(result);
+        if (result == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Nenhum gasto encontrado para o mês atual.");
+            return NotFound(response);
+        }
+
+        var successResponse = ApiResponse<SpendingSummaryDto>.CreateSuccess(result);
+        return Ok(successResponse);
     }
 }

@@ -201,27 +201,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddInfrastructureServices(
-        this IServiceCollection services, ConfigurationManager configuration
-    )
-    {
-        var productionConnectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
-        string connectionString;
-
-        if (!string.IsNullOrEmpty(productionConnectionString))
-            connectionString = productionConnectionString;
-        else
-            connectionString = configuration.GetConnectionString("DefaultConnection")
-                               ?? throw new InvalidOperationException(
-                                   "Nenhuma connection string 'DefaultConnection' encontrada.");
-
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(connectionString)
-        );
-
-        return services;
-    }
-
     public static WebApplication ConfigureMiddleware(this WebApplication app, IWebHostEnvironment env)
     {
         app.UseMiddleware<ErrorHandlingMiddleware>();

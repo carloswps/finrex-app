@@ -11,27 +11,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Finrex_App.Infra.Api.Controllers;
 
+/// <inheritdoc />
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/transactions")]
 [Authorize]
-public class TransactionController : ControllerBase
+public class TransactionController(
+    IFinancialTransactionService financialTransactionService,
+    ILogger<TransactionController> logger,
+    MIncomeDTOValidator dtoValidatorMi,
+    MSpendingDTOValidator dtoMsValidator)
+    : ControllerBase
 {
-    private readonly MIncomeDTOValidator _dtoMiValidator;
-    private readonly MSpendingDTOValidator _dtoMsValidator;
-    private readonly IFinancialTransactionService _financialTransactionService;
-    private readonly ILogger<TransactionController> _logger;
-
-    public TransactionController(
-        IFinancialTransactionService financialTransactionService,
-        ILogger<TransactionController> logger, MIncomeDTOValidator dtoValidatorMi,
-        MSpendingDTOValidator dtoMsValidator)
-    {
-        _financialTransactionService = financialTransactionService;
-        _logger = logger;
-        _dtoMsValidator = dtoMsValidator;
-        _dtoMiValidator = dtoValidatorMi;
-    }
+    private readonly MSpendingDTOValidator _dtoMsValidator = dtoMsValidator;
+    private readonly ILogger<TransactionController> _logger = logger;
 
     [HttpPost("incomes")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -39,11 +32,24 @@ public class TransactionController : ControllerBase
     public async Task<IActionResult> RegisterIncome([FromBody] MIncomeDto mIncomeDto)
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
-        await _dtoMiValidator.ValidateAndThrowAsync(mIncomeDto);
-        var result = await _financialTransactionService.RegisterMIncomeAsync(mIncomeDto, userId.Value);
-        if (!result) return BadRequest("Não foi possivel realizar o cadastro");
-        return CreatedAtAction(nameof(RegisterIncome), new { Sucesso = true, Dados = mIncomeDto });
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
+        await dtoValidatorMi.ValidateAndThrowAsync(mIncomeDto);
+        var result = await financialTransactionService.RegisterMIncomeAsync(mIncomeDto, userId.Value);
+
+        if (!result)
+        {
+            var response = ApiResponse<string>.CreateFailure("Não foi possivel realizar o cadastro");
+            return BadRequest(response);
+        }
+
+        var successResponse = ApiResponse<object>.CreateSuccess(new
+            { Sucesso = true, Dados = mIncomeDto });
+        return Ok(successResponse);
     }
 
 
@@ -53,9 +59,22 @@ public class TransactionController : ControllerBase
     public async Task<IActionResult> RegisterSpending([FromBody] MSpendingDtO mSpendingDto)
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
-        var result = await _financialTransactionService.RegisterMSpendingAsync(mSpendingDto, userId.Value);
-        if (!result) return BadRequest("Não foi possivel realizar o cadastro");
-        return CreatedAtAction(nameof(RegisterSpending), new { Sucesso = true, Dados = mSpendingDto });
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
+        await dtoMsValidator.ValidateAndThrowAsync(mSpendingDto);
+        var result = await financialTransactionService.RegisterMSpendingAsync(mSpendingDto, userId.Value);
+
+        if (!result)
+        {
+            var response = ApiResponse<string>.CreateFailure("Não foi possivel realizar o cadastro");
+            return BadRequest(response);
+        }
+
+        var successResponse = ApiResponse<object>.CreateSuccess(new { Sucesso = true, Dados = mSpendingDto });
+        return Ok(successResponse);
     }
 }

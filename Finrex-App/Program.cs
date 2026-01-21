@@ -2,18 +2,17 @@ using Finrex_App.Infra.Data;
 using Finrex_App.Extensions;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder( args );
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddApiConfiguration( builder.Configuration )
-    .AddSwaggerConfiguration( builder )
-    .AddAuthenticationConfiguration( builder.Configuration )
+    .AddApiConfiguration(builder.Configuration)
+    .AddSwaggerConfiguration(builder)
+    .AddAuthenticationConfiguration(builder.Configuration)
     .AddCorsConfiguration()
-    .AddApplicationServices()
-    .AddInfrastructureServices(builder.Configuration);
+    .AddApplicationServices();
 
 var app = builder.Build();
 
 
-app.ConfigureMiddleware( app.Environment );
+app.ConfigureMiddleware(app.Environment);
 app.Run();

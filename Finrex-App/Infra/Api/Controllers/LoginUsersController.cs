@@ -10,28 +10,18 @@ using FluentValidation;
 
 namespace Finrex_App.Infra.Api.Controllers;
 
+/// <inheritdoc />
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/login-users")]
-public class LoginUsersController : ControllerBase
+public class LoginUsersController(
+    ILoginUserServices loginUserService,
+    ILogger<LoginUsersController> logger,
+    RegisterDTOValidator dtoValidator,
+    IAntiforgery antiforgery,
+    IConfiguration configuration)
+    : ControllerBase
 {
-    private readonly ILoginUserServices _loginUserService;
-    private readonly ILogger<LoginUsersController> _logger;
-    private readonly RegisterDTOValidator _dtoValidator;
-    private readonly IAntiforgery _antiforgery;
-    private readonly IConfiguration _configuration;
-
-    public LoginUsersController(
-        ILoginUserServices loginUserService, ILogger<LoginUsersController> logger, RegisterDTOValidator dtoValidator,
-        IAntiforgery antiforgery, IConfiguration configuration)
-    {
-        _loginUserService = loginUserService;
-        _logger = logger;
-        _dtoValidator = dtoValidator;
-        _antiforgery = antiforgery;
-        _configuration = configuration;
-    }
-
     private void SetAuthCookie(string token)
     {
         var cookieOptions = new CookieOptions
@@ -49,9 +39,9 @@ public class LoginUsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
     {
-        await _dtoValidator.ValidateAsync(registerDto);
+        await dtoValidator.ValidateAsync(registerDto);
 
-        var result = await _loginUserService.RegisterAsync(registerDto);
+        var result = await loginUserService.RegisterAsync(registerDto);
         if (!result)
         {
             var response = ApiResponse<string>.CreateFailure("Não foi possivel realizar o cadastro");
@@ -68,7 +58,7 @@ public class LoginUsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginUserDto loginUserDto)
     {
-        var token = await _loginUserService.LoginAsync(loginUserDto);
+        var token = await loginUserService.LoginAsync(loginUserDto);
         if (token == null)
         {
             var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
@@ -77,7 +67,7 @@ public class LoginUsersController : ControllerBase
 
         SetAuthCookie(token);
         var successResponse =
-            ApiResponse<object>.CreateSuccess(new { token = token, message = "Login realizado com sucesso" });
+            ApiResponse<object>.CreateSuccess(new { token = token });
         return Ok(successResponse);
     }
 
@@ -108,17 +98,17 @@ public class LoginUsersController : ControllerBase
         var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
         var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-        _logger.LogInformation("Email obtido: {Email}, Nome: {Name}", email, name);
+        logger.LogInformation("Email obtido: {Email}, Nome: {Name}", email, name);
 
         if (string.IsNullOrEmpty(email)) return BadRequest("Não foi possível obter o e-mail do Google.");
 
 
-        var token = await _loginUserService.HandleGoogleLoginAsync(email, name);
+        var token = await loginUserService.HandleGoogleLoginAsync(email, name);
         if (token == null) return Unauthorized("Não foi possível processar o login com o Google.");
 
-        _logger.LogInformation("Token gerado com sucesso para o email {Email}", email);
+        logger.LogInformation("Token gerado com sucesso para o email {Email}", email);
         SetAuthCookie(token);
-        var frontendBase = _configuration["FrontendBaseUrl"];
+        var frontendBase = configuration["FrontendBaseUrl"];
         if (string.IsNullOrWhiteSpace(frontendBase)) frontendBase = "http://localhost:3000";
 
         var frontendUrl = $"{frontendBase}/insights?token={token}";
@@ -135,14 +125,15 @@ public class LoginUsersController : ControllerBase
         var providerClaim = User.FindFirst("auth_provider")?.Value;
         if (providerClaim == "google") await HttpContext.SignOutAsync("Google");
         Response.Cookies.Delete("finrex.auth");
-        return Ok(new { message = "Logout realizado com sucesso" });
+        var successResponse = ApiResponse<string>.CreateSuccess("Logout realizado com sucesso");
+        return Ok(successResponse);
     }
 
     [HttpGet("get-csrf-token")]
     [ApiExplorerSettings(IgnoreApi = true)]
     public IActionResult GetCsrfToken()
     {
-        var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
+        var tokens = antiforgery.GetAndStoreTokens(HttpContext);
         var requestToken = tokens.RequestToken;
         return Ok(new { csrfToken = requestToken });
     }

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Finrex_App.Application.DTOs;
 using Finrex_App.Application.Services.Interface;
+using Finrex_App.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,35 +17,28 @@ public class FinanceFactorController(IFinanceFactorsService factorsService, ILog
     private readonly IFinanceFactorsService _financeFactorsService = factorsService;
     private readonly ILogger<FinanceFactorController> _logger = logger;
 
-    private string? GetUserId()
-    {
-        return User.FindFirst("userId")?.Value
-               ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-               ?? User.FindFirst("sub")?.Value
-               ?? User.FindFirst("nameid")?.Value;
-    }
-
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpsertFinanceFactors([FromBody] FinanceFactorDto input)
     {
-        if (input == null) return BadRequest(new { message = "Corpo da requisição inválido ou ausente." });
+        if (!ModelState.IsValid)
+        {
+            var response = ApiResponse<object>.CreateFailure("Dados inválidos.");
+            return BadRequest(response);
+        }
 
-        if (!ModelState.IsValid) return BadRequest(new { message = "Dados inválidos.", errors = ModelState });
-
-        var userIdString = GetUserId();
-        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var userId))
-            return Unauthorized(new { message = "O usuário não possui as credenciais necessárias." });
+        var userIdString = User.GetUserId();
+        if (userIdString == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
 
         var referenceMonth = input.ReferenceDate ?? new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1);
+        await _financeFactorsService.UpsertFinanceFactorsAsync(userIdString.Value, referenceMonth, input);
 
-        await _financeFactorsService.UpsertFinanceFactorsAsync(userId, referenceMonth, input);
-
-        return Ok(new
-        {
-            message = "Fatores financeiros registrados com sucesso.",
-            Dados = input
-        });
+        var successResponse = ApiResponse<string>.CreateSuccess("Dados atualizados com sucesso");
+        return Ok(successResponse);
     }
 }
