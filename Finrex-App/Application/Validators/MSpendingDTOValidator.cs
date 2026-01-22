@@ -8,11 +8,11 @@ public class MSpendingDTOValidator : AbstractValidator<MSpendingDtO>
 {
     private readonly AppDbContext _dbContext;
 
-    public MSpendingDTOValidator( AppDbContext dbContext )
+    public MSpendingDTOValidator(AppDbContext dbContext)
     {
         _dbContext = dbContext;
-        RuleFor( x => x.Date )
-            .LessThanOrEqualTo( DateOnly.FromDateTime( DateTime.Today ) )
-            .NotEmpty().WithMessage( "Por favor digite uma data valida" );
+        RuleFor(x => x.Date)
+            .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.Today.AddDays(30)))
+            .NotEmpty().WithMessage("Por favor digite uma data valida");
     }
 }

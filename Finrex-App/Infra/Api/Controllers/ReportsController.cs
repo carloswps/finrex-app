@@ -70,10 +70,17 @@ public class ReportsController(
     )
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
         var (fMonth, lMonth) = ParseDateRange(firstMonth, lastMonth);
         var result = await _financialTransactionService.GetSavingsGrowthAsync(userId.Value, fMonth, lMonth);
-        return Ok(result);
+
+        var successResponse = ApiResponse<SavingsGrowthResult>.CreateSuccess(result);
+        return Ok(successResponse);
     }
 
     [HttpGet("net-profit-growth")]
@@ -86,10 +93,17 @@ public class ReportsController(
     )
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
         var (fMonth, lMonth) = ParseDateRange(firstMonth, lastMonth);
         var result = await _financialTransactionService.GetNetProfitGrowthAsync(userId.Value, fMonth, lMonth);
-        return Ok(result);
+
+        var successResponse = ApiResponse<NetProfitResult>.CreateSuccess(result);
+        return Ok(successResponse);
     }
 
     [HttpGet("spending-comparison")]
@@ -102,10 +116,18 @@ public class ReportsController(
     )
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
+        ;
         var (fMonth, lMonth) = ParseDateRange(firstMonth, lastMonth);
         var result = await _financialTransactionService.GetSpendingComparisonAsync(userId.Value, fMonth, lMonth);
-        return Ok(result);
+
+        var successResponse = ApiResponse<SpendingComparison>.CreateSuccess(result);
+        return Ok(successResponse);
     }
 
     [HttpGet("month-present")]
@@ -118,11 +140,18 @@ public class ReportsController(
     )
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
         var (fMonth, lMonth) = ParseDateRange(firstMonth, lastMonth);
         var result = await _financialTransactionService.GetCurrentMonthSpendingsAsync(
             userId.Value, fMonth, lMonth);
-        return Ok(result);
+
+        var successResponse = ApiResponse<object>.CreateSuccess(result);
+        return Ok(successResponse);
     }
 
     [HttpGet("top-earnings")]
@@ -132,10 +161,17 @@ public class ReportsController(
     public async Task<ActionResult<List<TopEarningMonth>>> GetTopEarningMonths()
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
         var result = await _financialTransactionService.GetTopEarningMonthAsync(userId.Value);
         if (result.Count == 0) return NotFound("Nenhuma receita encontrada para o usuário.");
-        return Ok(result);
+
+        var successResponse = ApiResponse<List<TopEarningMonth>>.CreateSuccess(result);
+        return Ok(successResponse);
     }
 
     [HttpGet("top-savings")]
@@ -145,10 +181,17 @@ public class ReportsController(
     public async Task<ActionResult<List<TopSavingsMonth>>> GetTopSavingsMonths()
     {
         var userId = User.GetUserId();
-        if (userId == null) return Unauthorized("O usuário não possui as credências necessárias");
+        if (userId == null)
+        {
+            var response = ApiResponse<string>.CreateFailure("Credenciais invalidas");
+            return Unauthorized(response);
+        }
+
         var result = await _financialTransactionService.GetTopSavingsMonthAsync(userId.Value);
         if (result.Count == 0) return NotFound("Nenhuma economia registrada entre meses.");
-        return Ok(result);
+
+        var successResponse = ApiResponse<List<TopSavingsMonth>>.CreateSuccess(result);
+        return Ok(successResponse);
     }
 
     [HttpGet("current-month-spenging")]
