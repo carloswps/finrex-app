@@ -14,9 +14,9 @@ public class MSpendingDtoValidatorTests
     public MSpendingDtoValidatorTests()
     {
         var options = new DbContextOptions<AppDbContext>();
-        var dbContextMock = new Mock<AppDbContext>( options );
+        var dbContextMock = new Mock<AppDbContext>(options);
 
-        _validator = new MSpendingDTOValidator( dbContextMock.Object );
+        _validator = new MSpendingDTOValidator(dbContextMock.Object);
     }
 
     [Fact]
@@ -24,12 +24,12 @@ public class MSpendingDtoValidatorTests
     {
         var model = new MSpendingDtO
         {
-            Date = DateOnly.FromDateTime( DateTime.Today.AddYears( 1 ) )
+            Date = DateOnly.FromDateTime(DateTime.Today.AddYears(1))
         };
 
-        var result = _validator.TestValidate( model );
+        var result = _validator.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor( x => x.Date );
+        result.ShouldHaveValidationErrorFor(x => x.Date);
     }
 
     [Fact]
@@ -37,12 +37,12 @@ public class MSpendingDtoValidatorTests
     {
         var model = new MSpendingDtO
         {
-            Date = DateOnly.FromDateTime( DateTime.Today.AddDays( 1 ) )
+            Date = DateOnly.MinValue
         };
 
-        var result = _validator.TestValidate( model );
+        var result = _validator.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor( x => x.Date );
+        result.ShouldHaveValidationErrorFor(x => x.Date);
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class MSpendingDtoValidatorTests
     {
         var model = new MSpendingDtO
         {
-            Date = DateOnly.FromDayNumber( DateTime.Today.Day ),
+            Date = DateOnly.FromDayNumber(DateTime.Today.Day),
             Entertainment = 200.00m,
             Groceries = null,
             Rent = 50,
