@@ -25,5 +25,4 @@ jobs:
       - name: Build
         run: dotnet build Finrex-App.sln --no-restore
       - name: Test
-        run: dotnet test Finrex-App.sln --no-build --verbosity
-        normal 
+        run: dotnet test Finrex-App.sln --no-build --verbosity normal 
