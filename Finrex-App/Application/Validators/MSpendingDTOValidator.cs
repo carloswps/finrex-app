@@ -13,6 +13,7 @@ public class MSpendingDTOValidator : AbstractValidator<MSpendingDtO>
         _dbContext = dbContext;
         RuleFor(x => x.Date)
             .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.Today.AddDays(30)))
+            .GreaterThan(DateOnly.MinValue)
             .NotEmpty().WithMessage("Por favor digite uma data valida");
     }
 }
