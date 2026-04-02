@@ -12,7 +12,6 @@ builder.Services
     .AddApplicationServices();
 
 var app = builder.Build();
-Console.WriteLine("Starting Finrex API");
 
 app.ConfigureMiddleware(app.Environment);
 app.Run();
