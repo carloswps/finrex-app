@@ -23,6 +23,8 @@ jobs:
           dotnet-version: 8.0.x
       - name: Restore dependencies
         run: dotnet restore Finrex-App.sln
+      - name: Check formatting
+        run: dotnet format Finrex-App.sln --verify-no-changes
       - name: Build
         run: dotnet build Finrex-App.sln --no-restore
       - name: Test

@@ -104,12 +104,14 @@ public static class ServiceCollectionExtensions
                         = "Uma API para gerenciamento de finanças pessoais, permitindo o registro de receitas e despesas.",
                     Contact = new OpenApiContact
                     {
-                        Name = "Finrex.APP", Email = "seu-email@example.com",
+                        Name = "Finrex.APP",
+                        Email = "seu-email@example.com",
                         Url = new Uri("https://seusite.com")
                     },
                     License = new OpenApiLicense
                     {
-                        Name = "Licença MIT", Url = new Uri("https://opensource.org/licenses/MIT")
+                        Name = "Licença MIT",
+                        Url = new Uri("https://opensource.org/licenses/MIT")
                     }
                 });
 

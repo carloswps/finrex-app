@@ -25,12 +25,12 @@ public interface IFinancialTransactionService
     Task<SpendingSummaryDto?> GetCurrentMonthSpendingSummaryAsync(int userId);
 
     Task<List<MIncomeResponseDto>> GetIncomeAsync(int userId);
-    Task<MIncomeResponseDto> GetIncomeByIdAsync(int id, int userId);
+    Task<MIncomeResponseDto?> GetIncomeByIdAsync(int id, int userId);
     Task<bool> UpdateIncomeAsync(int id, MIncomeDto dto, int userId);
     Task<bool> DeleteIncomeAsync(int id, int userId);
 
     Task<List<MSpendingResponseDto>> GetSpendingAsync(int userId);
-    Task<MSpendingResponseDto> GetSpendingByIdAsync(int id, int userId);
+    Task<MSpendingResponseDto?> GetSpendingByIdAsync(int id, int userId);
     Task<bool> UpdateSpendingAsync(int id, MSpendingDtO dtO, int userId);
     Task<bool> DeleteSpendingAsync(int id, int userId);
 }

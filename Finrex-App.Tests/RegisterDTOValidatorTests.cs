@@ -13,10 +13,10 @@ public class RegisterDtoValidatorTests
     public RegisterDtoValidatorTests()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase( Guid.NewGuid().ToString() )
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
-        var context = new AppDbContext( options );
-        _validator = new RegisterDTOValidator( context );
+        var context = new AppDbContext(options);
+        _validator = new RegisterDTOValidator(context);
     }
 
     [Fact]
@@ -28,10 +28,10 @@ public class RegisterDtoValidatorTests
             password = "senhaForte123"
         };
 
-        var result = await _validator.ValidateAsync( model );
+        var result = await _validator.ValidateAsync(model);
 
-        Assert.False( result.IsValid );
-        Assert.Contains( result.Errors, err => err.PropertyName == "email" );
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, err => err.PropertyName == "email");
     }
 
     [Fact]
@@ -43,10 +43,10 @@ public class RegisterDtoValidatorTests
             password = "senhaForte123"
         };
 
-        var result = await _validator.ValidateAsync( model );
+        var result = await _validator.ValidateAsync(model);
 
-        Assert.False( result.IsValid );
-        Assert.Contains( result.Errors, err => err.PropertyName == "email" );
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, err => err.PropertyName == "email");
     }
 
     [Fact]
@@ -58,10 +58,10 @@ public class RegisterDtoValidatorTests
             password = ""
         };
 
-        var result = await _validator.ValidateAsync( model );
+        var result = await _validator.ValidateAsync(model);
 
-        Assert.False( result.IsValid );
-        Assert.Contains( result.Errors, err => err.PropertyName == "password" );
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, err => err.PropertyName == "password");
     }
 
     [Fact]
@@ -73,10 +73,10 @@ public class RegisterDtoValidatorTests
             password = "123"
         };
 
-        var result = await _validator.ValidateAsync( model );
+        var result = await _validator.ValidateAsync(model);
 
-        Assert.False( result.IsValid );
-        Assert.Contains( result.Errors, err => err.PropertyName == "password" );
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, err => err.PropertyName == "password");
     }
 
     [Fact]
@@ -88,9 +88,9 @@ public class RegisterDtoValidatorTests
             password = "SenhaSegura123!"
         };
 
-        var result = await _validator.ValidateAsync( model );
+        var result = await _validator.ValidateAsync(model);
 
-        Assert.True( result.IsValid );
-        Assert.Empty( result.Errors );
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
     }
 }

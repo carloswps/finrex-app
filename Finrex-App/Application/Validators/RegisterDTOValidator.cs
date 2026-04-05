@@ -9,21 +9,21 @@ public class RegisterDTOValidator : AbstractValidator<RegisterDTO>
 {
     private readonly AppDbContext _dbContext;
 
-    public RegisterDTOValidator( AppDbContext dbContext )
+    public RegisterDTOValidator(AppDbContext dbContext)
     {
         _dbContext = dbContext;
-        RuleFor( x => x.email )
-            .NotEmpty().WithMessage( "Por favor informe o seu email." )
-            .EmailAddress().WithMessage( "Por favor informe um e-mail válido" )
-            .MustAsync( BeUniqueEmail ).WithMessage( "Este e-mail já esta cadastrado." );
-        RuleFor( x => x.password )
-            .NotEmpty().WithMessage( "Por favor informe a sua senha." )
-            .Length( 6, 100 ).WithMessage( "A senha deve ter entre 6 e 100 caracteres." );
+        RuleFor(x => x.email)
+            .NotEmpty().WithMessage("Por favor informe o seu email.")
+            .EmailAddress().WithMessage("Por favor informe um e-mail válido")
+            .MustAsync(BeUniqueEmail).WithMessage("Este e-mail já esta cadastrado.");
+        RuleFor(x => x.password)
+            .NotEmpty().WithMessage("Por favor informe a sua senha.")
+            .Length(6, 100).WithMessage("A senha deve ter entre 6 e 100 caracteres.");
     }
 
-    private async Task<bool> BeUniqueEmail( string email, CancellationToken cancellationToken )
+    private async Task<bool> BeUniqueEmail(string email, CancellationToken cancellationToken)
     {
-        var userExists = await _dbContext.Users.AnyAsync( u => u.email == email, cancellationToken );
+        var userExists = await _dbContext.Users.AnyAsync(u => u.email == email, cancellationToken);
         return !userExists;
     }
 }

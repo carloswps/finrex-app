@@ -388,23 +388,50 @@ public class FinancialTransactionService : IFinancialTransactionService
         return true;
     }
 
-    public Task<List<MSpendingResponseDto>> GetSpendingAsync(int userId)
+    public async Task<List<MSpendingResponseDto>> GetSpendingAsync(int userId)
     {
-        throw new NotImplementedException();
+        var spending = await _context.MSpending
+            .Where(s => s.UsuarioId == userId)
+            .ToListAsync();
+
+        return spending.Select(s => _mapper.Map<MSpendingResponseDto>(s)).ToList();
     }
 
-    public Task<MSpendingResponseDto> GetSpendingByIdAsync(int id, int userId)
+    public async Task<MSpendingResponseDto> GetSpendingByIdAsync(int id, int userId)
     {
-        throw new NotImplementedException();
+        var spendingById = await _context.MSpending
+            .Where(s => s.Id == id && s.UsuarioId == userId)
+            .FirstOrDefaultAsync();
+
+        if (spendingById == null) return null;
+
+        return _mapper.Map<MSpendingResponseDto>(spendingById);
     }
 
-    public Task<bool> UpdateSpendingAsync(int id, MSpendingDtO dtO, int userId)
+    public async Task<bool> UpdateSpendingAsync(int id, MSpendingDtO dtO, int userId)
     {
-        throw new NotImplementedException();
+        var spending = await _context.MSpending.FirstOrDefaultAsync(s => s.Id == id && s.UsuarioId == userId);
+
+        if (spending == null) return false;
+
+        spending.Date = dtO.Date;
+        spending.Entertainment = dtO.Entertainment ?? 0;
+        spending.Groceries = dtO.Groceries ?? 0;
+        spending.Rent = dtO.Rent ?? 0;
+        spending.Transportation = dtO.Transportation ?? 0;
+        spending.Utilities = dtO.Utilities ?? 0;
+
+        await _context.SaveChangesAsync();
+        return true;
     }
 
-    public Task<bool> DeleteSpendingAsync(int id, int userId)
+    public async Task<bool> DeleteSpendingAsync(int id, int userId)
     {
-        throw new NotImplementedException();
+        var spending = await _context.MSpending.FirstOrDefaultAsync(s => s.Id == id && s.UsuarioId == userId);
+        if (spending == null) return false;
+
+        _context.MSpending.Remove(spending);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
