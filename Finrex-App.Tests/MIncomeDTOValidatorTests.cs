@@ -14,9 +14,9 @@ public class MIncomeDtoValidatorTests
     public MIncomeDtoValidatorTests()
     {
         var options = new DbContextOptions<AppDbContext>();
-        var dbContextMock = new Mock<AppDbContext>( options );
+        var dbContextMock = new Mock<AppDbContext>(options);
 
-        _validator = new MIncomeDTOValidator( dbContextMock.Object );
+        _validator = new MIncomeDTOValidator(dbContextMock.Object);
     }
 
     [Fact]
@@ -24,12 +24,12 @@ public class MIncomeDtoValidatorTests
     {
         var model = new MIncomeDto
         {
-            Date = DateOnly.FromDateTime( DateTime.Today.AddYears( 1 ) )
+            Date = DateOnly.FromDateTime(DateTime.Today.AddYears(1))
         };
 
-        var result = _validator.TestValidate( model );
+        var result = _validator.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor( x => x.Date );
+        result.ShouldHaveValidationErrorFor(x => x.Date);
     }
 
     [Fact]
@@ -37,12 +37,12 @@ public class MIncomeDtoValidatorTests
     {
         var model = new MIncomeDto
         {
-            Date = DateOnly.FromDateTime( DateTime.Today.AddDays( 1 ) )
+            Date = DateOnly.MinValue
         };
 
-        var result = _validator.TestValidate( model );
+        var result = _validator.TestValidate(model);
 
-        result.ShouldHaveValidationErrorFor( x => x.Date );
+        result.ShouldHaveValidationErrorFor(x => x.Date);
     }
 
     [Fact]
@@ -50,14 +50,14 @@ public class MIncomeDtoValidatorTests
     {
         var model = new MIncomeDto
         {
-            Date = DateOnly.FromDayNumber( DateTime.Today.Day ),
+            Date = DateOnly.FromDayNumber(DateTime.Today.Day),
             Benefits = 2000.00m,
             BusinessProfit = 555.00m,
             Freelance = 454.00m,
             Other = null
         };
 
-        var result = _validator.TestValidate( model );
+        var result = _validator.TestValidate(model);
         result.ShouldNotHaveAnyValidationErrors();
     }
 }

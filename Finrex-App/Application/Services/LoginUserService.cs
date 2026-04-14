@@ -16,7 +16,7 @@ public class LoginUserService : ILoginUserServices
     private readonly IMapper _mapper;
 
     public LoginUserService(
-        AppDbContext context, ILogger<LoginUserService> logger, TokeService tokeService, IMapper mapper )
+        AppDbContext context, ILogger<LoginUserService> logger, TokeService tokeService, IMapper mapper)
     {
         _context = context;
         _logger = logger;
@@ -24,65 +24,67 @@ public class LoginUserService : ILoginUserServices
         _mapper = mapper;
     }
 
-    public async Task<bool> RegisterAsync( RegisterDTO registerDto )
+    public async Task<bool> RegisterAsync(RegisterDTO registerDto)
     {
         try
         {
-            if ( await _context.Users.AnyAsync( u => u.email == registerDto.email ) )
+            if (await _context.Users.AnyAsync(u => u.email == registerDto.email))
             {
                 return false;
             }
 
-            var user = _mapper.Map<User>( registerDto );
+            var user = _mapper.Map<User>(registerDto);
 
-            user.password = BCrypt.Net.BCrypt.HashPassword( registerDto.password );
+            user.password = BCrypt.Net.BCrypt.HashPassword(registerDto.password);
 
-            _context.Users.Add( user );
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return true;
-        } catch ( DbUpdateException dbEx )
+        }
+        catch (DbUpdateException dbEx)
         {
-            _logger.LogWarning( dbEx, "Erro de banco ao registrar usuário" );
+            _logger.LogWarning(dbEx, "Erro de banco ao registrar usuário");
             return false;
-        } catch ( Exception ex )
+        }
+        catch (Exception ex)
         {
-            _logger.LogError( ex, "Erro ao registrar usuário" );
+            _logger.LogError(ex, "Erro ao registrar usuário");
             throw;
         }
     }
 
-    public async Task<string?> LoginAsync( LoginUserDto loginUserDto )
+    public async Task<string?> LoginAsync(LoginUserDto loginUserDto)
     {
         var user = await _context.Users
-            .FirstOrDefaultAsync( u => u.email == loginUserDto.email );
+            .FirstOrDefaultAsync(u => u.email == loginUserDto.email);
 
-        if ( user == null ) { return null; }
+        if (user == null) { return null; }
 
-        var senhaOk = BCrypt.Net.BCrypt.Verify( loginUserDto.password, user.password );
-        if ( !senhaOk )
+        var senhaOk = BCrypt.Net.BCrypt.Verify(loginUserDto.password, user.password);
+        if (!senhaOk)
         {
             return null;
         }
 
-        return _tokeService.GenerateToken( user, "password" );
+        return _tokeService.GenerateToken(user, "password");
     }
 
-    public async Task<string?> HandleGoogleLoginAsync( string email, string? name )
+    public async Task<string?> HandleGoogleLoginAsync(string email, string? name)
     {
-        var user = await _context.Users.FirstOrDefaultAsync( u => u.email == email );
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.email == email);
 
-        if ( user == null )
+        if (user == null)
         {
             user = new User
             {
                 email = email,
                 password = ""
             };
-            _context.Users.Add( user );
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }
 
-        var token = _tokeService.GenerateToken( user, "google" );
+        var token = _tokeService.GenerateToken(user, "google");
         return token;
     }
 }
